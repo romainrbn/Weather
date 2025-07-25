@@ -8,5 +8,7 @@
 import UIKit
 
 extension HomeViewController: UICollectionViewDelegate {
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // Handle item selection
+    }
 }

@@ -1,0 +1,33 @@
+//
+//  HomeSection.swift
+//  Weather
+//
+//  Created by Romain Rabouan on 7/26/25.
+//
+
+import Foundation
+
+enum HomeSection: Hashable {
+    case favourites(_ items: [HomeItem])
+    case recentlyVisited(_ items: [HomeItem])
+
+    var items: [HomeItem] {
+        switch self {
+        case .favourites(let items):
+            return items
+        case .recentlyVisited(let items):
+            return items
+        }
+    }
+}
+
+extension HomeSection {
+    var title: String {
+        switch self {
+        case .favourites:
+            return "Favourites"
+        case .recentlyVisited:
+            return "Recently Visited"
+        }
+    }
+}

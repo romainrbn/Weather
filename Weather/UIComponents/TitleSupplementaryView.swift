@@ -23,8 +23,8 @@ final class TitleSupplementaryView: UICollectionReusableView {
 
     private lazy var titleLabel = createTitleLabel()
 
-    init() {
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setup()
     }
 

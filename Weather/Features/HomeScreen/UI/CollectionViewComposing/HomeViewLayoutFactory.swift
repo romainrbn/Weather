@@ -41,7 +41,7 @@ struct HomeViewLayoutFactory {
 
     // MARK: - Private
 
-    /// Generates a header for any section type.
+    /// Generates a simple title header for any section type.
     private static func headerSupplementaryView() -> NSCollectionLayoutBoundarySupplementaryItem {
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
