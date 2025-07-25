@@ -22,16 +22,11 @@ struct HomeViewLayoutFactory {
     }
 
     /// The layout for the "Favorites" section in the home view.
-    static func favoritesLayoutSection() -> NSCollectionLayoutSection {
-        let group = createVerticalGroup(
-            itemSize: .init(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .estimated(Constants.estimatedFavoriteItemHeight)
-            )
-        )
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: Constants.horizontalPadding, bottom: 0, trailing: Constants.horizontalPadding)
-        section.interGroupSpacing = Constants.spacingBetweenVerticalItems
+    static func favoritesLayoutSection(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+        listConfiguration.headerMode = .supplementary
+
+        let section = NSCollectionLayoutSection.list(using: listConfiguration, layoutEnvironment: layoutEnvironment)
 
         let sectionHeader = headerSupplementaryView()
         section.boundarySupplementaryItems = [sectionHeader]

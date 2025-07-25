@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import TipKit
 import SwiftUI
 
 /// This code could be integrated directly into `HomeViewController`.
@@ -58,7 +59,7 @@ final class HomeViewDataSource {
 
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             switch kind {
-            case HomeViewLayoutFactory.SupplementaryElementKind.headerElementKind:
+            case HomeViewLayoutFactory.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
             default:
                 assert(false, "This supplementary is not handled. Please handle it.")
@@ -77,7 +78,14 @@ extension HomeViewDataSource {
         return UICollectionView.CellRegistration<UICollectionViewCell, HomeLocationItem> { (cell, _, item) in
             cell.contentConfiguration = UIHostingConfiguration(content: {
                 HomeFavoriteItemView(item: item)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {} label: {
+                            Label("Pin", systemImage: "mappin.circle")
+                        }
+                        .tint(.blue)
+                    }
             })
+            .margins(.all, 0)
         }
     }
 

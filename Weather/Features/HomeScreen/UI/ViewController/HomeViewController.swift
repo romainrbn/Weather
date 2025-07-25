@@ -58,9 +58,9 @@ final class HomeViewController: UIViewController, HomeViewContract {
             // Create the layout depending of the current section.
             switch section {
             case .favourites:
-                return HomeViewLayoutFactory.favoritesLayoutSection()
+                return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
             case .recentlyVisited:
-                return HomeViewLayoutFactory.favoritesLayoutSection() // TODO: Change
+                return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
             }
         }
 

@@ -8,7 +8,7 @@
 import UIKit
 
 private enum Constants {
-    static let titleFontSize: CGFloat = 32
+    static let titleFontSize: CGFloat = 23
 }
 
 final class TitleSupplementaryView: UICollectionReusableView {
@@ -52,7 +52,7 @@ final class TitleSupplementaryView: UICollectionReusableView {
 
     private func createTitleLabel() -> UILabel {
         let label = UILabel(frame: .zero)
-        label.font = .systemFont(ofSize: Constants.titleFontSize, weight: .bold)
+        label.font = .systemFont(ofSize: Constants.titleFontSize, weight: .semibold)
         return label
     }
 }

@@ -28,6 +28,5 @@ struct HomeFavoriteItemView: View {
         }
         .padding()
         .background(Color.green)
-        .clipShape(.rect(cornerRadius: 12))
     }
 }
