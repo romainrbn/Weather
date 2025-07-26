@@ -31,6 +31,7 @@ final class HomeViewDataSource {
         content.sections.forEach { section in
             snapshot.appendItems(section.items, toSection: section)
         }
+        
         return snapshot
     }
 

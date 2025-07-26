@@ -19,6 +19,22 @@ enum HomeSection: Hashable {
             return items
         }
     }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+    }
+
+    static func == (lhs: HomeSection, rhs: HomeSection) -> Bool {
+        switch (lhs, rhs) {
+        case (.favourites, .favourites):
+            return true
+        case (.recentlyVisited, .recentlyVisited):
+            return true
+        default:
+            return false
+        }
+    }
+
 }
 
 extension HomeSection {
