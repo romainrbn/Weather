@@ -41,6 +41,8 @@ final class HomePresenter {
             try Task.checkCancellation()
             guard let self else { return }
 
+            let favorite = try await dependencies.store.fetchFavorite()
+
             // Load data and handle error
 
             await MainActor.run {

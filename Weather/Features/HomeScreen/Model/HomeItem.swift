@@ -13,5 +13,7 @@ enum HomeItem: Hashable {
 
 struct HomeLocationItem: Hashable {
     let locationName: String
+    let isCurrentLocation: Bool
+    let localFormattedTime: String
     let currentWeather: String
 }

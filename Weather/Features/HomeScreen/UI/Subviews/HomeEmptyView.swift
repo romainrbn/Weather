@@ -12,7 +12,7 @@ private enum Constants {
     static let symbolSize: CGFloat = 50
 }
 
-/// Mimics a `ContentUnavailableView`, but for iOS 16+
+/// Mimics a `ContentUnavailableView`, but for iOS 16+.
 struct HomeEmptyView: View {
 
     private let onUseCurrentLocationTapped: (() -> Void)?

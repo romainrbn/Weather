@@ -58,9 +58,9 @@
 			path = WeatherUITests;
 			sourceTree = "<group>";
 		};
-		1348FABC2E3411BB00DDA192 /* WeatherShared */ = {
+		1348FABC2E3411BB00DDA192 /* Common */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = WeatherShared;
+			path = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -93,7 +93,7 @@
 		1348FA7B2E340EF800DDA192 = {
 			isa = PBXGroup;
 			children = (
-				1348FABC2E3411BB00DDA192 /* WeatherShared */,
+				1348FABC2E3411BB00DDA192 /* Common */,
 				1348FA862E340EF800DDA192 /* Weather */,
 				1348FA9D2E340EFA00DDA192 /* WeatherTests */,
 				1348FAA72E340EFA00DDA192 /* WeatherUITests */,
@@ -128,7 +128,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				1348FA862E340EF800DDA192 /* Weather */,
-				1348FABC2E3411BB00DDA192 /* WeatherShared */,
+				1348FABC2E3411BB00DDA192 /* Common */,
 			);
 			name = Weather;
 			packageProductDependencies = (
