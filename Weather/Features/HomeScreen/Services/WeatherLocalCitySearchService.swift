@@ -26,7 +26,7 @@ enum WeatherLocalCitySearchServiceError: Error, LocalizedError {
 
 /// A service allowing to search for a city.
 ///
-/// - Important: Normally, we could (and should) use `MKLocalSearchCompleter`, as it would give us real-time, debounced suggestions.
+/// - Important: Normally, we could/should use `MKLocalSearchCompleter`, as it would give us near real-time, debounced suggestions.
 /// However, the current API only allows address or POI filtering, and we would need to "hack" to extract only cities.
 ///
 /// The `MKLocalSearch` used here is made for single queries, and will return a single result, but we are sure to only fetch cities.
@@ -50,7 +50,7 @@ final class WeatherLocalCitySearchService {
 
         let workItem = DispatchWorkItem { [weak self] in
             DispatchQueue.global(qos: .userInitiated).async {
-                self?.searchCitiesImmediately(query: query) { mapItems in
+                self?.searchCities(query: query) { mapItems in
                     DispatchQueue.main.async {
                         onResults(mapItems)
                     }
@@ -62,7 +62,7 @@ final class WeatherLocalCitySearchService {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 
-    func searchCitiesImmediately(query: String, completion: @escaping (WeatherLocalCitySearchResult) -> Void) {
+    private func searchCities(query: String, completion: @escaping (WeatherLocalCitySearchResult) -> Void) {
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(WeatherLocalCitySearchServiceError.networkError))
             return
