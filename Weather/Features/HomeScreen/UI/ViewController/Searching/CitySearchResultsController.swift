@@ -14,6 +14,7 @@ private enum Constants {
 
 protocol CitySearchResultsControllerDelegate: AnyObject {
     func didSelectCity(_ city: MKMapItem)
+    func retryQuery()
 }
 
 final class CitySearchResultsController: UITableViewController {
@@ -21,15 +22,28 @@ final class CitySearchResultsController: UITableViewController {
     var results: [MKMapItem] = [] {
         didSet {
             guard results != oldValue else { return }
+            errorView.isHidden = true
             tableView.reloadData()
         }
     }
+
+    var error: WeatherLocalCitySearchServiceError? = nil {
+        didSet {
+            errorView.isHidden = error == nil
+            if let error {
+                errorView.setError(error)
+            }
+        }
+    }
+
+    private lazy var errorView = createErrorView()
 
     weak var delegate: CitySearchResultsControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: Constants.cellReuseIdentifier)
+        tableView.backgroundView = errorView
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -52,5 +66,13 @@ final class CitySearchResultsController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         delegate?.didSelectCity(results[indexPath.row])
+    }
+
+    private func createErrorView() -> CitySearchErrorView {
+        let errorView = CitySearchErrorView { [weak self] in
+            self?.delegate?.retryQuery()
+        }
+        errorView.isHidden = true
+        return errorView
     }
 }

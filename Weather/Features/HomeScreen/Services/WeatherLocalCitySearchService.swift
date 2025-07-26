@@ -8,6 +8,22 @@
 import Foundation
 import MapKit
 
+typealias WeatherLocalCitySearchResult = Result<[MKMapItem], WeatherLocalCitySearchServiceError>
+
+enum WeatherLocalCitySearchServiceError: Error, LocalizedError {
+    case networkError
+    case mapKitError(_ wrappedError: any Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .networkError:
+            return "Network Error"
+        case .mapKitError(let wrappedError):
+            return wrappedError.localizedDescription
+        }
+    }
+}
+
 /// A service allowing to search for a city.
 ///
 /// - Important: Normally, we could (and should) use `MKLocalSearchCompleter`, as it would give us real-time, debounced suggestions.
@@ -21,14 +37,14 @@ final class WeatherLocalCitySearchService {
     func debounceSearch(
         query: String,
         delay: TimeInterval = 0.3,
-        onResults: @escaping ([MKMapItem]) -> Void
+        onResults: @escaping (WeatherLocalCitySearchResult) -> Void
     ) {
         currentDebounceWorkItem?.cancel()
         currentSearch?.cancel()
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
-            onResults([])
+            onResults(.success([]))
             return
         }
 
@@ -46,7 +62,11 @@ final class WeatherLocalCitySearchService {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 
-    func searchCitiesImmediately(query: String, completion: @escaping ([MKMapItem]) -> Void) {
+    func searchCitiesImmediately(query: String, completion: @escaping (WeatherLocalCitySearchResult) -> Void) {
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(WeatherLocalCitySearchServiceError.networkError))
+            return
+        }
         currentSearch?.cancel()
 
         let request = MKLocalSearch.Request()
@@ -58,8 +78,12 @@ final class WeatherLocalCitySearchService {
 
         search.start { response, error in
             guard let items = response?.mapItems else {
-                completion([])
+                completion(.success([]))
                 return
+            }
+
+            if let error {
+                completion(.failure(WeatherLocalCitySearchServiceError.mapKitError(error)))
             }
 
             let cities = items.filter {
@@ -67,7 +91,7 @@ final class WeatherLocalCitySearchService {
                 return placemark.locality != nil && placemark.subLocality == nil && placemark.thoroughfare == nil
             }
 
-            completion(cities)
+            completion(.success(cities))
         }
     }
 

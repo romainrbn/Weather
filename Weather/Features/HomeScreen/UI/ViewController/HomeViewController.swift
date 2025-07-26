@@ -32,6 +32,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.backgroundView = emptyStateView
+        collectionView.backgroundView?.center(within: view)
     }
 
     // MARK: - HomeViewContract conformance
@@ -39,6 +40,19 @@ final class HomeViewController: UIViewController, HomeViewContract {
     func display(_ content: HomeContent) {
         dataSource.content = content
         collectionView.backgroundView?.isHidden = !content.sections.isEmpty
+    }
+
+    func performCitySearch(_ query: String) {
+        presenter?.searchCity(query) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let cities):
+                    self?.searchResultsController.results = cities
+                case .failure(let error):
+                    self?.searchResultsController.error = error
+                }
+            }
+        }
     }
 
     // MARK: - Setup
@@ -96,6 +110,10 @@ final class HomeViewController: UIViewController, HomeViewContract {
         )
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
+        if #available(iOS 17.4, *) {
+            collectionView.bouncesVertically = false
+        }
+
         return collectionView
     }
 
@@ -108,6 +126,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
     private func createSearchController() -> UISearchController {
         let controller = UISearchController(searchResultsController: searchResultsController)
         controller.searchResultsUpdater = self
+        controller.delegate = self
         controller.obscuresBackgroundDuringPresentation = true
         controller.searchBar.placeholder = "Search for a city"
         return controller
@@ -143,14 +162,10 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
 // MARK: - UISearchResultsUpdating
 
-extension HomeViewController: UISearchResultsUpdating {
+extension HomeViewController: UISearchResultsUpdating, UISearchControllerDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         let query = searchController.searchBar.text ?? ""
-        presenter?.searchCity(query) { [weak self] cities in
-            DispatchQueue.main.async {
-                self?.searchResultsController.results = cities
-            }
-        }
+        performCitySearch(query)
     }
 }
 
@@ -159,6 +174,12 @@ extension HomeViewController: UISearchResultsUpdating {
 extension HomeViewController: CitySearchResultsControllerDelegate {
     func didSelectCity(_ city: MKMapItem) {
         searchController.searchBar.text = ""
+        presenter?.state.searchQuery = ""
         searchResultsController.dismiss(animated: true)
+    }
+
+    func retryQuery() {
+        guard let searchQuery = presenter?.state.searchQuery else { return }
+        performCitySearch(searchQuery)
     }
 }

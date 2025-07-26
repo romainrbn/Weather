@@ -11,6 +11,7 @@ import MapKit
 
 final class HomePresenter {
     struct State {
+        var searchQuery: String = ""
         var locationItems: [HomeLocationItem] = []
     }
 
@@ -48,7 +49,8 @@ final class HomePresenter {
         }
     }
 
-    func searchCity(_ query: String, completion: @escaping ([MKMapItem]) -> Void) {
+    func searchCity(_ query: String, completion: @escaping (WeatherLocalCitySearchResult) -> Void) {
+        state.searchQuery = query
         dependencies.citySearchService.debounceSearch(query: query, onResults: completion)
     }
 
@@ -67,5 +69,24 @@ final class HomePresenter {
     @MainActor
     private func updateView() {
         viewContract?.display(HomeContentMapper.map(state))
+    }
+
+    // MARK: - Notifications
+
+    private func registerToNetworkChangeNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidConnectBackToNetwork),
+            name: UIApplication.applicationDidConnectToNetwork,
+            object: nil
+        )
+    }
+
+    @objc
+    private func applicationDidConnectBackToNetwork() {
+        // If the user was in a process of querying a city without the internet and comes back online,
+        // let's try to search their query again
+        guard state.searchQuery.isEmpty == false else { return }
+        viewContract?.performCitySearch(state.searchQuery)
     }
 }
