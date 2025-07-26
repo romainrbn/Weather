@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MapKit
 
 final class HomeViewController: UIViewController, HomeViewContract {
 
@@ -14,6 +15,8 @@ final class HomeViewController: UIViewController, HomeViewContract {
     private lazy var collectionView: UICollectionView = createCollectionView()
     private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
     private lazy var dataSource: HomeViewDataSource = HomeViewDataSource(collectionView: collectionView)
+    private lazy var searchResultsController: CitySearchResultsController = createSearchResultsController()
+    private lazy var searchController: UISearchController = createSearchController()
 
     var presenter: HomePresenter?
 
@@ -34,12 +37,20 @@ final class HomeViewController: UIViewController, HomeViewContract {
     // MARK: - Setup
 
     private func setup() {
-        view.backgroundColor = .systemBackground
-        title = "Weather"
-        navigationItem.largeTitleDisplayMode = .always
-
+        setupNavigation()
         buildViewHierarchy()
         setConstraints()
+    }
+
+    private func setupNavigation() {
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.largeTitleDisplayMode = .always
+        title = "Weather"
+
+        definesPresentationContext = true
+
+        view.backgroundColor = .systemBackground
     }
 
     private func buildViewHierarchy() {
@@ -78,5 +89,37 @@ final class HomeViewController: UIViewController, HomeViewContract {
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
         return collectionView
+    }
+
+    private func createSearchResultsController() -> CitySearchResultsController {
+        let searchController = CitySearchResultsController()
+        searchController.delegate = self
+        return searchController
+    }
+
+    private func createSearchController() -> UISearchController {
+        let controller = UISearchController(searchResultsController: searchResultsController)
+        controller.searchResultsUpdater = self
+        controller.obscuresBackgroundDuringPresentation = true
+        controller.searchBar.placeholder = "Search for a city"
+        return controller
+    }
+}
+
+extension HomeViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let query = searchController.searchBar.text ?? ""
+        presenter?.searchCity(query) { [weak self] cities in
+            DispatchQueue.main.async {
+                self?.searchResultsController.results = cities
+            }
+        }
+    }
+}
+
+extension HomeViewController: CitySearchResultsControllerDelegate {
+    func didSelectCity(_ city: MKMapItem) {
+        searchController.searchBar.text = ""
+        searchResultsController.dismiss(animated: true)
     }
 }

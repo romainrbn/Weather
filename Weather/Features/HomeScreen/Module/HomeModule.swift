@@ -15,7 +15,7 @@ struct HomeModule {
     private(set) var viewController: HomeViewController
     private var presenter: HomePresenter
 
-    init(dependencies: HomePresenter.Dependencies) {
+    init(dependencies: HomeDependencies) {
         viewController = HomeViewController()
         presenter = HomePresenter(
             dependencies: dependencies,

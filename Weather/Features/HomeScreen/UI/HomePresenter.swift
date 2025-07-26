@@ -6,17 +6,14 @@
 //
 
 import Foundation
+import MapKit
 
 final class HomePresenter {
-    struct Dependencies {
-
-    }
-
     struct State {
         var locationItems: [HomeLocationItem] = []
     }
 
-    private let dependencies: Dependencies
+    private let dependencies: HomeDependencies
     private(set) weak var viewContract: HomeViewContract?
 
     private var loadDataTask: Task<Void, Error>?
@@ -24,7 +21,7 @@ final class HomePresenter {
     var state = State()
 
     init(
-        dependencies: Dependencies,
+        dependencies: HomeDependencies,
         viewContract: HomeViewContract
     ) {
         self.dependencies = dependencies
@@ -58,6 +55,10 @@ final class HomePresenter {
                 self.updateView()
             }
         }
+    }
+
+    func searchCity(_ query: String, completion: @escaping ([MKMapItem]) -> Void) {
+        dependencies.citySearchService.debounceSearch(query: query, onResults: completion)
     }
 
     @MainActor

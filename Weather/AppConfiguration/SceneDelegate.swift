@@ -15,7 +15,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
 
-        let homeModule = HomeModule(dependencies: .init())
+        let homeModule = HomeModule(
+            dependencies: HomeDependencies(
+                citySearchService: WeatherLocalCitySearchService()
+            )
+        )
         let navigationController = UINavigationController(rootViewController: homeModule.viewController)
         navigationController.navigationBar.prefersLargeTitles = true
         window?.rootViewController = navigationController

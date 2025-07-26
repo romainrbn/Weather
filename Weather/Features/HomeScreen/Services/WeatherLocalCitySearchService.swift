@@ -1,0 +1,78 @@
+//
+//  WeatherLocalCitySearchService.swift
+//  Weather
+//
+//  Created by Romain Rabouan on 7/26/25.
+//
+
+import Foundation
+import MapKit
+
+/// A service allowing to search for a city.
+///
+/// - Important: Normally, we could (and should) use `MKLocalSearchCompleter`, as it would give us real-time, debounced suggestions.
+/// However, the current API only allows address or POI filtering, and we would need to "hack" to extract only cities.
+///
+/// The `MKLocalSearch` used here is made for single queries, and will return a single result, but we are sure to only fetch cities.
+final class WeatherLocalCitySearchService {
+    private var currentDebounceWorkItem: DispatchWorkItem?
+    private var currentSearch: MKLocalSearch?
+
+    func debounceSearch(
+        query: String,
+        delay: TimeInterval = 0.3,
+        onResults: @escaping ([MKMapItem]) -> Void
+    ) {
+        currentDebounceWorkItem?.cancel()
+        currentSearch?.cancel()
+
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else {
+            onResults([])
+            return
+        }
+
+        let workItem = DispatchWorkItem { [weak self] in
+            DispatchQueue.global(qos: .userInitiated).async {
+                self?.searchCitiesImmediately(query: query) { mapItems in
+                    DispatchQueue.main.async {
+                        onResults(mapItems)
+                    }
+                }
+            }
+        }
+
+        currentDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+    }
+
+    func searchCitiesImmediately(query: String, completion: @escaping ([MKMapItem]) -> Void) {
+        currentSearch?.cancel()
+
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        request.resultTypes = .address
+
+        let search = MKLocalSearch(request: request)
+        currentSearch = search
+
+        search.start { response, error in
+            guard let items = response?.mapItems else {
+                completion([])
+                return
+            }
+
+            let cities = items.filter {
+                let placemark = $0.placemark
+                return placemark.locality != nil && placemark.subLocality == nil && placemark.thoroughfare == nil
+            }
+
+            completion(cities)
+        }
+    }
+
+    func cancel() {
+        currentDebounceWorkItem?.cancel()
+        currentSearch?.cancel()
+    }
+}
