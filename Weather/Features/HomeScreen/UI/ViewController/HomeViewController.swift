@@ -19,7 +19,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
     private lazy var searchController: UISearchController = createSearchController()
     private lazy var emptyStateView = createEmptyView()
 
-    var presenter: HomePresenter?
+    weak var presenter: HomePresenter?
 
     // MARK: - Lifecycle
 
@@ -54,6 +54,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.largeTitleDisplayMode = .always
         title = "Weather"
+        navigationItem.leftBarButtonItem = createSettingsBarButtonItem()
 
         definesPresentationContext = true
 
@@ -119,7 +120,28 @@ final class HomeViewController: UIViewController, HomeViewContract {
             })
         )
     }
+
+    private func createSettingsBarButtonItem() -> UIBarButtonItem {
+        let buttonItem = UIBarButtonItem(
+            image: UIImage(systemName: "gear"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapSettingsButton)
+        )
+        buttonItem.accessibilityLabel = "Open Settings"
+
+        return buttonItem
+    }
+
+    // MARK: - Selectors
+
+    @objc
+    private func didTapSettingsButton() {
+        presenter?.didTapSettingsButton()
+    }
 }
+
+// MARK: - UISearchResultsUpdating
 
 extension HomeViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
@@ -131,6 +153,8 @@ extension HomeViewController: UISearchResultsUpdating {
         }
     }
 }
+
+// MARK: - CitySearchResultsControllerDelegate
 
 extension HomeViewController: CitySearchResultsControllerDelegate {
     func didSelectCity(_ city: MKMapItem) {

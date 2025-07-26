@@ -11,6 +11,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    private var homeModule: HomeModule?
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
@@ -20,6 +22,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 citySearchService: WeatherLocalCitySearchService()
             )
         )
+        self.homeModule = homeModule
         let navigationController = UINavigationController(rootViewController: homeModule.viewController)
         navigationController.navigationBar.prefersLargeTitles = true
         window?.rootViewController = navigationController

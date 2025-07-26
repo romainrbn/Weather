@@ -5,7 +5,8 @@
 //  Created by Romain Rabouan on 7/26/25.
 //
 
-import Foundation
+import UIKit
+import SwiftUI
 import MapKit
 
 final class HomePresenter {
@@ -39,7 +40,7 @@ final class HomePresenter {
             try Task.checkCancellation()
             guard let self else { return }
 
-            // Load data
+            // Load data and handle error
 
             await MainActor.run {
                 self.updateView()
@@ -53,6 +54,14 @@ final class HomePresenter {
 
     func didTapUseCurrentLocationButton() {
         
+    }
+
+    @MainActor
+    func didTapSettingsButton() {
+        viewContract?.present(
+            UIHostingController(rootView: UserPreferencesView()),
+            animated: true
+        )
     }
 
     @MainActor
