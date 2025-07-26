@@ -27,6 +27,15 @@ final class UserPreferredUnitConverter {
             let convertedMeasurement = convertToFahrenheit(celciusValue: celsiusTemperatureValue)
             let measurement = Measurement(value: convertedMeasurement, unit: UnitTemperature.fahrenheit)
             return formatter.string(from: measurement)
+        case .systemDefault:
+            if UserPreferredTemperatureUnit.defaultForCurrentLocale == .systemDefault {
+                assert(false, "Should not happen!")
+                return "-"
+            }
+            return formatValue(
+                celsiusTemperatureValue: celsiusTemperatureValue,
+                unit: UserPreferredTemperatureUnit.defaultForCurrentLocale
+            )
         }
     }
 

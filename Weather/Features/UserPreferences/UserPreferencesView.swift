@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserPreferencesView: View {
-    @State private var selectedUnit: UserPreferredTemperatureUnit = .celsius
+    @State private var selectedUnit: UserPreferredTemperatureUnit = .systemDefault
 
     @State private var isSavingNewUnit: Bool = false
 
