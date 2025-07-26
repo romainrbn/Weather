@@ -12,4 +12,22 @@ struct FavouriteItemDTO: Equatable {
     let latitude: Double
     let longitude: Double
     let timezone: TimeZone
+    var locationName: String?
+    var currentTemperature: Double?
+
+    init(
+        identifier: UUID,
+        latitude: Double,
+        longitude: Double,
+        timezone: TimeZone,
+        locationName: String?,
+        currentTemperature: Double?
+    ) {
+        self.identifier = identifier
+        self.latitude = latitude
+        self.longitude = longitude
+        self.timezone = timezone
+        self.locationName = locationName
+        self.currentTemperature = currentTemperature
+    }
 }

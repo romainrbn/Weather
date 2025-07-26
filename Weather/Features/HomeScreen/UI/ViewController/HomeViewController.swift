@@ -110,9 +110,6 @@ final class HomeViewController: UIViewController, HomeViewContract {
         )
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
-        if #available(iOS 17.4, *) {
-            collectionView.bouncesVertically = false
-        }
 
         return collectionView
     }

@@ -10,9 +10,31 @@ import Foundation
 /// Creates the content to display on the home view, from the current state of the presenter.
 struct HomeContentMapper {
     static func map(_ state: HomePresenter.State) -> HomeContent {
-        let items = state.locationItems.map {
-            HomeItem.location($0)
+        let sections = [
+            buildFavoritesSection(from: state.favoritesDTOs)
+        ]
+        .compactMap { $0 }
+
+        return HomeContent(sections: sections)
+    }
+
+    private static func buildFavoritesSection(from items: [FavouriteItemDTO]) -> HomeSection? {
+        guard !items.isEmpty else {
+            return nil
         }
-        return HomeContent(sections: [])
+        
+        let items = items.map { favouriteItem in
+            HomeItem.location(
+                HomeLocationItem(
+                    identifier: favouriteItem.identifier.uuidString,
+                    locationName: favouriteItem.locationName ?? "-",
+                    isCurrentLocation: false,
+                    localFormattedTime: "Midnight",
+                    currentWeather: favouriteItem.currentTemperature?.formatted() ?? "-"
+                )
+            )
+        }
+
+        return HomeSection.favourites(items)
     }
 }

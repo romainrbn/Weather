@@ -43,4 +43,10 @@ struct LiveHomeStore: HomeStore {
 
         return try await fetchRequest.execute()
     }
+
+    func loadWeatherData(for favorites: inout [FavouriteItemDTO]) async throws {
+        for index in favorites.indices {
+            favorites[index].currentTemperature = 10
+        }
+    }
 }

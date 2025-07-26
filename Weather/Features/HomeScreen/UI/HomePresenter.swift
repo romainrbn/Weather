@@ -11,8 +11,8 @@ import MapKit
 
 final class HomePresenter {
     struct State {
+        var favoritesDTOs: [FavouriteItemDTO] = []
         var searchQuery: String = ""
-        var locationItems: [HomeLocationItem] = []
     }
 
     private let dependencies: HomeDependencies
@@ -41,9 +41,8 @@ final class HomePresenter {
             try Task.checkCancellation()
             guard let self else { return }
 
-            let favorite = try await dependencies.store.fetchFavorite()
-
-            // Load data and handle error
+            let favorites = try await dependencies.store.fetchFavorites()
+            state.favoritesDTOs = favorites
 
             await MainActor.run {
                 self.updateView()

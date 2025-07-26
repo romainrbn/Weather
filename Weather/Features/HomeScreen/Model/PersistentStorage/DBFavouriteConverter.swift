@@ -25,7 +25,9 @@ struct DBFavouriteConverter: DTOConverter {
             identifier: id,
             latitude: object.latitude,
             longitude: object.longitude,
-            timezone: timezone
+            timezone: timezone,
+            locationName: nil,
+            currentTemperature: nil
         )
     }
 }
