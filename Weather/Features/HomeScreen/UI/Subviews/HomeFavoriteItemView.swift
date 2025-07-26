@@ -20,7 +20,7 @@ struct HomeFavoriteItemView: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: .spacing200) {
             conditionsSymbolView
 
             locationTitleView
@@ -28,7 +28,15 @@ struct HomeFavoriteItemView: View {
             Spacer()
 
             currentConditionsView
+
+            Image(systemName: "chevron.forward")
+                .imageScale(.small)
+                .foregroundStyle(.tertiary)
         }
+        .accessibilityLabel(item.accessibilityLabel)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Tap to view detailed weather information")
     }
 
     private var conditionsSymbolView: some View {

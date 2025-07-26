@@ -80,10 +80,7 @@ extension HomeViewDataSource {
             cell.contentConfiguration = UIHostingConfiguration(content: {
                 HomeFavoriteItemView(item: item)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button {} label: {
-                            Label("Pin", systemImage: "mappin.circle")
-                        }
-                        .tint(.blue)
+                        HomeFavoriteItemSwipeActionsView()
                     }
                     .listRowInsets(
                         EdgeInsets(
