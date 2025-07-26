@@ -17,6 +17,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
     private lazy var dataSource: HomeViewDataSource = HomeViewDataSource(collectionView: collectionView)
     private lazy var searchResultsController: CitySearchResultsController = createSearchResultsController()
     private lazy var searchController: UISearchController = createSearchController()
+    private lazy var emptyStateView = createEmptyView()
 
     var presenter: HomePresenter?
 
@@ -28,10 +29,16 @@ final class HomeViewController: UIViewController, HomeViewContract {
         presenter?.loadData()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        collectionView.backgroundView = emptyStateView
+    }
+
     // MARK: - HomeViewContract conformance
 
     func display(_ content: HomeContent) {
         dataSource.content = content
+        collectionView.backgroundView?.isHidden = !content.sections.isEmpty
     }
 
     // MARK: - Setup
@@ -103,6 +110,14 @@ final class HomeViewController: UIViewController, HomeViewContract {
         controller.obscuresBackgroundDuringPresentation = true
         controller.searchBar.placeholder = "Search for a city"
         return controller
+    }
+
+    private func createEmptyView() -> HostingView<HomeEmptyView> {
+        HostingView(
+            rootView: HomeEmptyView(onUseCurrentLocationTapped: { [weak self] in
+                self?.presenter?.didTapUseCurrentLocationButton()
+            })
+        )
     }
 }
 

@@ -13,6 +13,6 @@ struct HomeContentMapper {
         let items = state.locationItems.map {
             HomeItem.location($0)
         }
-        return HomeContent(sections: [.favourites(items)])
+        return HomeContent(sections: [])
     }
 }
