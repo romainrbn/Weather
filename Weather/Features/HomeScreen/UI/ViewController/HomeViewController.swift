@@ -35,6 +35,9 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
     private func setup() {
         view.backgroundColor = .systemBackground
+        title = "Weather"
+        navigationItem.largeTitleDisplayMode = .always
+
         buildViewHierarchy()
         setConstraints()
     }
