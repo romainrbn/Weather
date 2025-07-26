@@ -37,13 +37,22 @@ final class HomePresenter {
             Log.log("Tried to load the data while already loading.")
             loadDataTask?.cancel()
         }
+
         loadDataTask = Task(priority: .userInitiated) { [weak self] in
             try Task.checkCancellation()
             guard let self else { return }
 
             // Load data
 
-            state.locationItems = [.init(locationName: "Paris", currentWeather: "Rainy")]
+            state.locationItems = [
+                .init(locationName: "Paris", currentWeather: "Cloudy"),
+                .init(locationName: "London", currentWeather: "Rain"),
+                .init(locationName: "Los Angeles", currentWeather: "Sunny"),
+                .init(locationName: "New York", currentWeather: "Stormy"),
+                .init(locationName: "New Delhi", currentWeather: "Polluted"),
+                .init(locationName: "San Francisco", currentWeather: "Foggy"),
+                .init(locationName: "Cupertino", currentWeather: "Sunny"),
+            ]
 
             await MainActor.run {
                 self.updateView()

@@ -8,7 +8,7 @@
 import UIKit
 
 private enum Constants {
-    static let horizontalPadding: CGFloat = 16.0
+    static let padding: CGFloat = 16.0
 
     static let estimatedFavoriteItemHeight: CGFloat = 100.0
     static let spacingBetweenVerticalItems: CGFloat = 12.0
@@ -23,12 +23,17 @@ struct HomeViewLayoutFactory {
 
     /// The layout for the "Favorites" section in the home view.
     static func favoritesLayoutSection(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .plain)
         listConfiguration.headerMode = .supplementary
+        listConfiguration.showsSeparators = false
+        listConfiguration.backgroundColor = .systemGroupedBackground
 
         let section = NSCollectionLayoutSection.list(using: listConfiguration, layoutEnvironment: layoutEnvironment)
+        section.contentInsets = .init(allEdges: .spacing400)
+        section.interGroupSpacing = .spacing400
 
         let sectionHeader = headerSupplementaryView()
+        sectionHeader.contentInsets = .init(horizontal: .spacing400)
         section.boundarySupplementaryItems = [sectionHeader]
 
         return section

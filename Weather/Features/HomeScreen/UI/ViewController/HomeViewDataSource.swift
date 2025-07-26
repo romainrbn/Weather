@@ -84,8 +84,14 @@ extension HomeViewDataSource {
                         }
                         .tint(.blue)
                     }
+                    .listRowInsets(
+                        EdgeInsets(
+                            NSDirectionalEdgeInsets(vertical: .spacing400)
+                        )
+                    )
             })
-            .margins(.all, 0)
+            cell.backgroundColor = .secondarySystemGroupedBackground
+            cell.layer.cornerRadius = .spacing300
         }
     }
 

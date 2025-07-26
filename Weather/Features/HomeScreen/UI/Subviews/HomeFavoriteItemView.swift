@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+private enum Constants {
+    static let currentConditionsSymbolFrame: CGFloat = 48
+}
+
 struct HomeFavoriteItemView: View {
 
     private let item: HomeLocationItem
@@ -17,16 +21,22 @@ struct HomeFavoriteItemView: View {
 
     var body: some View {
         HStack {
-            Image(systemName: "star").foregroundStyle(.purple)
+            Image(systemName: "cloud.sun.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Color.gray.gradient, Color.yellow)
+                .frame(width: Constants.currentConditionsSymbolFrame, height: Constants.currentConditionsSymbolFrame)
+
             VStack(alignment: .leading) {
                 Text(item.locationName)
-                    .font(.subheadline)
+                    .font(.title3.bold())
+
                 Text(item.currentWeather)
                     .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
         }
-        .padding()
-        .background(Color.green)
     }
 }
