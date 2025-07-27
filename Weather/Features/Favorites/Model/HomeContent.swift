@@ -22,12 +22,6 @@ struct HomeContent: Equatable {
                 if lhsItems != rhsItems {
                     return false
                 }
-            case (.recentlyVisited(let lhsItems), .recentlyVisited(let rhsItems)):
-                if lhsItems != rhsItems {
-                    return false
-                }
-            default:
-                return false
             }
         }
 

@@ -8,14 +8,11 @@
 import Foundation
 
 enum HomeSection: Hashable {
-    case favourites(_ items: [HomeItem])
-    case recentlyVisited(_ items: [HomeItem])
+    case favourites(_ items: [FavouriteViewDescriptor])
 
-    var items: [HomeItem] {
+    var items: [FavouriteViewDescriptor] {
         switch self {
         case .favourites(let items):
-            return items
-        case .recentlyVisited(let items):
             return items
         }
     }
@@ -23,18 +20,6 @@ enum HomeSection: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
     }
-
-    static func == (lhs: HomeSection, rhs: HomeSection) -> Bool {
-        switch (lhs, rhs) {
-        case (.favourites, .favourites):
-            return true
-        case (.recentlyVisited, .recentlyVisited):
-            return true
-        default:
-            return false
-        }
-    }
-
 }
 
 extension HomeSection {
@@ -42,8 +27,6 @@ extension HomeSection {
         switch self {
         case .favourites:
             return "Favourites"
-        case .recentlyVisited:
-            return "Recently Visited"
         }
     }
 }
