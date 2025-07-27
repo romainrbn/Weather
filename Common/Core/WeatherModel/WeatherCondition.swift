@@ -8,7 +8,7 @@
 import Foundation
 
 /// See: https://openweathermap.org/weather-conditions
-enum WeatherCondition {
+enum WeatherCondition: Int {
     case clear
     case clouds
     case thunderstorm

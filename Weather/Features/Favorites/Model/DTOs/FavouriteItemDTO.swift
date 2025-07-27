@@ -13,9 +13,8 @@ struct FavouriteItemDTO: Hashable {
     let longitude: Double
     let timezone: TimeZone
     var locationName: String?
-    var currentTemperature: Int?
-    var minTemperature: Int?
-    var maxTemperature: Int?
+    var currentWeather: WeatherReport?
+    var todayTemperaturesRange: CurrentDayTemperatureRange?
 
     init(
         identifier: UUID,
@@ -23,17 +22,15 @@ struct FavouriteItemDTO: Hashable {
         longitude: Double,
         timezone: TimeZone,
         locationName: String?,
-        currentTemperature: Int?,
-        minTemperature: Int?,
-        maxTemperature: Int?
+        currentWeather: WeatherReport?,
+        todayTemperaturesRange: CurrentDayTemperatureRange?
     ) {
         self.identifier = identifier
         self.latitude = latitude
         self.longitude = longitude
         self.timezone = timezone
         self.locationName = locationName
-        self.currentTemperature = currentTemperature
-        self.maxTemperature = maxTemperature
-        self.minTemperature = minTemperature
+        self.currentWeather = currentWeather
+        self.todayTemperaturesRange = todayTemperaturesRange
     }
 }

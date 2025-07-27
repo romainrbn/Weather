@@ -27,9 +27,28 @@ struct DBFavouriteConverter: DTOConverter {
             longitude: object.longitude,
             timezone: timezone,
             locationName: nil,
-            currentTemperature: nil,
-            minTemperature: nil,
-            maxTemperature: nil
+            currentWeather: createCurrentWeatherObject(
+                temperature: object.temperature,
+                rawCondition: object.condition
+            ),
+            todayTemperaturesRange: CurrentDayTemperatureRange(
+                minimumCelsiusTemperature: Int(object.temperatureMin),
+                maximumCelsiusTemperature: Int(object.temperatureMax)
+            )
+        )
+    }
+
+    private func createCurrentWeatherObject(
+        temperature: Int16,
+        rawCondition: Int16
+    ) -> WeatherReport? {
+        guard let condition = WeatherCondition(rawValue: Int(rawCondition)) else {
+            return nil
+        }
+
+        return WeatherReport(
+            celsiusTemperature: Int(temperature),
+            condition: condition
         )
     }
 }

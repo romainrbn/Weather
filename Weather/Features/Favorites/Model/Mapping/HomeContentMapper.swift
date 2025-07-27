@@ -29,7 +29,7 @@ struct HomeContentMapper {
                 locationName: favouriteItem.locationName ?? "-",
                 isCurrentLocation: false,
                 localFormattedTime: "Midnight",
-                currentWeather: favouriteItem.currentTemperature?.formatted() ?? "-"
+                currentWeather: favouriteItem.currentWeather?.celsiusTemperature.formatted() ?? "-"
             )
         }
 

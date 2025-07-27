@@ -27,7 +27,7 @@ enum WeatherLocalCitySearchServiceError: Error, LocalizedError {
 /// A service allowing to search for a city.
 ///
 /// - Important: Normally, we could/should use `MKLocalSearchCompleter`, as it would give us near real-time, debounced suggestions.
-/// However, the current API only allows address or POI filtering, and we would need to "hack" to extract only cities.
+/// However, the current API only allows address or POI filtering, and we would need a "hack" to extract only cities.
 ///
 /// The `MKLocalSearch` used here is made for single queries, and will return a single result, but we are sure to only fetch cities.
 final class WeatherLocalCitySearchService {

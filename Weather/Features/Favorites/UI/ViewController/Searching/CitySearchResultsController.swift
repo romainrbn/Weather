@@ -60,6 +60,7 @@ final class CitySearchResultsController: UITableViewController {
             .compactMap { $0 }
             .joined(separator: ", ")
         cell.contentConfiguration = config
+        cell.accessoryType = .disclosureIndicator
 
         return cell
     }

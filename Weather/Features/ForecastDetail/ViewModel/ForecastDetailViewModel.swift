@@ -19,6 +19,6 @@ final class ForecastDetailViewModel: ObservableObject {
     }
 
     func loadData() async {
-        
+//        try await dependencies.
     }
 }
