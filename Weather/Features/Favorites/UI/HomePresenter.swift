@@ -106,7 +106,7 @@ final class HomePresenter {
 
     @MainActor
     private func updateView() {
-        viewContract?.display(HomeContentMapper.map(state))
+        viewContract?.display(FavouritesViewContentMapper.map(state))
     }
 
     // MARK: - User Actions

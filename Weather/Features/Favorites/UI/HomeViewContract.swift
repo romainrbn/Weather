@@ -9,6 +9,6 @@ import UIKit
 
 /// Serves a clean interface from the presenter to the view controller.
 protocol HomeViewContract: UIViewController {
-    @MainActor func display(_ content: HomeContent)
+    @MainActor func display(_ content: FavouritesViewContent)
     func performCitySearch(_ query: String)
 }

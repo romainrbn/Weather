@@ -31,10 +31,10 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
     // MARK: - HomeViewContract conformance
 
-    func display(_ content: HomeContent) {
+    func display(_ content: FavouritesViewContent) {
         dataSource.content = content
 
-        let hasData = !content.sections.isEmpty
+        let hasData = !content.items.isEmpty
         emptyStateView.isHidden = hasData
 
         if #available(iOS 17.4, *) {
@@ -87,16 +87,8 @@ final class HomeViewController: UIViewController, HomeViewContract {
     // MARK: Content creation
 
     private func createCollectionViewLayout() -> UICollectionViewCompositionalLayout {
-        let sectionProvider = { [weak self] (sectionIndex: Int, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            guard let self else { return nil }
-
-            let section = dataSource.content.sections[sectionIndex]
-
-            // Create the layout depending of the current section.
-            switch section {
-            case .favourites:
-                return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
-            }
+        let sectionProvider = { (_: Int, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
         }
 
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
@@ -166,7 +158,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let item = dataSource.content.sections[indexPath.section].items[indexPath.item]
+        let item = dataSource.content.items[indexPath.item]
 
         presenter?.didSelectItem(item)
     }

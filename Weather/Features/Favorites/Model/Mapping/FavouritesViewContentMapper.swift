@@ -1,5 +1,5 @@
 //
-//  HomeContentMapper.swift
+//  FavouritesViewContentMapper.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -8,29 +8,24 @@
 import Foundation
 
 /// Creates the content to display on the home view, from the current state of the presenter.
-struct HomeContentMapper {
-    static func map(_ state: HomePresenter.State) -> HomeContent {
-        let sections = [
-            buildFavoritesSection(from: state.favoritesDTOs)
-        ]
-        .compactMap { $0 }
-
-        return HomeContent(sections: sections)
+struct FavouritesViewContentMapper {
+    static func map(_ state: HomePresenter.State) -> FavouritesViewContent {
+        FavouritesViewContent(
+            items: buildFavoritesItems(from: state.favoritesDTOs)
+        )
     }
 
-    private static func buildFavoritesSection(from items: [FavouriteItemDTO]) -> HomeSection? {
+    private static func buildFavoritesItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {
         guard !items.isEmpty else {
-            return nil
+            return []
         }
         
-        let items = items.compactMap { favouriteItem -> FavouriteViewDescriptor? in
+        return items.compactMap { favouriteItem -> FavouriteViewDescriptor? in
             guard let descriptor = favouriteViewDescriptor(from: favouriteItem) else {
                 return nil
             }
             return descriptor
         }
-
-        return HomeSection.favourites(items)
     }
 
     private static func favouriteViewDescriptor(from favouriteItem: FavouriteItemDTO) -> FavouriteViewDescriptor? {

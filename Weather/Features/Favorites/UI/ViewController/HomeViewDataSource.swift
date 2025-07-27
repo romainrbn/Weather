@@ -16,7 +16,7 @@ final class HomeViewDataSource {
     typealias HomeDataSource = UICollectionViewDiffableDataSource<HomeSection, FavouriteViewDescriptor>
     typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<HomeSection, FavouriteViewDescriptor>
 
-    var content: HomeContent = .empty {
+    var content: FavouritesViewContent = .empty {
         didSet {
             guard content != oldValue else { return }
             dataSource.apply(currentSnapshot)
@@ -28,9 +28,10 @@ final class HomeViewDataSource {
 
     private var currentSnapshot: DataSourceSnapshot {
         var snapshot = DataSourceSnapshot()
-        snapshot.appendSections(content.sections)
-        content.sections.forEach { section in
-            snapshot.appendItems(section.items, toSection: section)
+
+        if content.items.isEmpty == false {
+            snapshot.appendSections([.favourites])
+            snapshot.appendItems(content.items, toSection: .favourites)
         }
         
         return snapshot
