@@ -13,7 +13,9 @@ struct FavouriteItemDTO: Equatable {
     let longitude: Double
     let timezone: TimeZone
     var locationName: String?
-    var currentTemperature: Double?
+    var currentTemperature: Int?
+    var minTemperature: Int?
+    var maxTemperature: Int?
 
     init(
         identifier: UUID,
@@ -21,7 +23,9 @@ struct FavouriteItemDTO: Equatable {
         longitude: Double,
         timezone: TimeZone,
         locationName: String?,
-        currentTemperature: Double?
+        currentTemperature: Int?,
+        minTemperature: Int?,
+        maxTemperature: Int?
     ) {
         self.identifier = identifier
         self.latitude = latitude
