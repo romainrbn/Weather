@@ -80,7 +80,7 @@ extension HomeViewDataSource {
         return UICollectionView.CellRegistration<UICollectionViewCell, FavouriteViewDescriptor> { (cell, _, item) in
             cell.contentConfiguration = UIHostingConfiguration(content: {
                 HomeFavoriteItemView(item: item)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         HomeFavoriteItemSwipeActionsView(onRemoveFavorite: { [weak self] in
                             self?.presenter?.removeFavorite(item)
                         })

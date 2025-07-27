@@ -11,6 +11,7 @@ protocol FavouriteStore {
     func createFavorite(from dto: FavouriteItemDTO) async throws
     func fetchFavorites() async throws -> [FavouriteItemDTO]
     func removeFavorite(_ dto: FavouriteItemDTO) async throws
+    func loadWeatherData(latitude: Double, longitude: Double) async throws -> APICurrentWeather
 
     func favouritesChangeStream() -> AsyncStream<FavouriteChange>
 }
@@ -46,19 +47,21 @@ final class LiveFavouriteStore: FavouriteStore {
         from dto: FavouriteItemDTO
     ) async throws {
         guard
-            let currentTemperature = dto.currentTemperature,
-            let minTemperature = dto.minTemperature,
-            let maxTemperature = dto.maxTemperature
+            let currentWeather = dto.currentWeather,
+            let temperaturesRanges = dto.todayTemperaturesRange
         else {
             throw FavouriteStoreError.missingNecessaryData
         }
 
         try await localRepository.createDBFavourite(
+            identifier: dto.identifier,
+            locationName: dto.locationName,
             latitude: dto.latitude,
             longitude: dto.longitude,
-            latestTemperature: currentTemperature,
-            maxTemperature: maxTemperature,
-            minTemperature: minTemperature,
+            latestTemperature: currentWeather.celsiusTemperature,
+            maxTemperature: temperaturesRanges.maximumCelsiusTemperature,
+            minTemperature: temperaturesRanges.minimumCelsiusTemperature,
+            conditionRawValue: currentWeather.condition.rawValue,
             timeZone: dto.timezone
         )
 
@@ -81,19 +84,10 @@ final class LiveFavouriteStore: FavouriteStore {
         continuation?.yield(.removed(dto))
     }
 
-    func loadWeatherData(for favorites: inout [FavouriteItemDTO]) async throws {
-        // TODO: Task group for parallelizaiton
-        for index in favorites.indices {
-            var favorite = favorites[index]
-
-            let currentWeather = try await remoteRepository.loadCurrentWeather(
-                latitude: favorite.latitude,
-                longitude: favorite.longitude
-            )
-
-            favorite.currentTemperature = Int(currentWeather.mainInfo.temperature)
-            favorite.minTemperature = Int(currentWeather.mainInfo.minTemperature)
-            favorite.maxTemperature = Int(currentWeather.mainInfo.maxTemperature)
-        }
+    func loadWeatherData(latitude: Double, longitude: Double) async throws -> APICurrentWeather {
+        return try await remoteRepository.loadCurrentWeather(
+            latitude: latitude,
+            longitude: longitude
+        )
     }
 }

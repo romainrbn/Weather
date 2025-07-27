@@ -16,7 +16,7 @@ final class FavouriteDeleteRequest: DeleteRequest<DBFavorite> {
     }
 
     @discardableResult
-    func setFavouriteIdentifier(_ identifier: UUID) -> Self {
+    func setFavouriteIdentifier(_ identifier: String) -> Self {
         let keyPath = #keyPath(DBFavorite.localIdentifier)
         let predicate = NSPredicate(format: "%K == %@", keyPath, identifier as CVarArg)
 

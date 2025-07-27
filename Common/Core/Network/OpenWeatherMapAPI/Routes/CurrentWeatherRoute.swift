@@ -12,17 +12,15 @@ struct CurrentWeatherRoute: Route {
 
     private let inputParameters: [String: String]
 
+    var queryParams: [String : String] {
+        inputParameters
+    }
+
     init(inputParameters: [String : String]) {
         self.inputParameters = inputParameters
     }
 
-    var additionalQueryParameters: [URLQueryItem] {
-        inputParameters.map { key, value in
-            URLQueryItem(name: key, value: value)
-        }
-    }
-
     var path: String {
-        "forecast"
+        "weather"
     }
 }

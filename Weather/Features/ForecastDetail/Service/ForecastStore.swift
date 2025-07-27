@@ -24,7 +24,11 @@ protocol ForecastStore {
      In contrast, coordinates always resolve to a valid location, making them a safer
      and more consistent input for forecast requests.
      */
-    func loadForecast(latitude: Double, longitude: Double) async throws -> ForecastDTO
+    func loadForecast(
+        latitude: Double,
+        longitude: Double,
+        currentWeather: WeatherReport?
+    ) async throws -> ForecastDTO
 }
 
 struct LiveForecastStore: ForecastStore {
@@ -35,9 +39,25 @@ struct LiveForecastStore: ForecastStore {
         self.repository = repository
     }
 
-    func loadForecast(latitude: Double, longitude: Double) async throws -> ForecastDTO {
+    func loadForecast(
+        latitude: Double,
+        longitude: Double,
+        currentWeather: WeatherReport?
+    ) async throws -> ForecastDTO {
         let apiModel = try await repository.loadForecast(latitude: latitude, longitude: longitude)
+        let weather: WeatherReport
+        if let currentWeather {
+            weather = currentWeather
+        } else {
+            weather = try await loadCurrentWeather(latitude, longitude)
+        }
+        return WSForecastConverter.convert(
+            currentWeather: weather,
+            wsForecast: apiModel
+        )
+    }
 
-        
+    private func loadCurrentWeather(_ latitude: Double, _ longitude: Double) async throws -> WeatherReport {
+        .init(celsiusTemperature: 25, condition: .rain)
     }
 }

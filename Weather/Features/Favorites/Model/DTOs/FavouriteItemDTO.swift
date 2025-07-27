@@ -8,20 +8,20 @@
 import Foundation
 
 struct FavouriteItemDTO: Hashable {
-    let identifier: UUID
+    let identifier: String
     let latitude: Double
     let longitude: Double
     let timezone: TimeZone
-    var locationName: String?
+    var locationName: String
     var currentWeather: WeatherReport?
     var todayTemperaturesRange: CurrentDayTemperatureRange?
 
     init(
-        identifier: UUID,
+        identifier: String,
         latitude: Double,
         longitude: Double,
         timezone: TimeZone,
-        locationName: String?,
+        locationName: String,
         currentWeather: WeatherReport?,
         todayTemperaturesRange: CurrentDayTemperatureRange?
     ) {

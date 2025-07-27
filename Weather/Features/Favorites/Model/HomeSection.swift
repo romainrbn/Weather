@@ -20,6 +20,10 @@ enum HomeSection: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
     }
+
+    static func == (lhs: HomeSection, rhs: HomeSection) -> Bool {
+        lhs.title == rhs.title && lhs.items == rhs.items
+    }
 }
 
 extension HomeSection {

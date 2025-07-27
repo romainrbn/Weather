@@ -8,9 +8,20 @@
 import Foundation
 
 struct FavouriteViewDescriptor: Hashable {
-    let identifier: UUID
+    let identifier: String
     let locationName: String
     let isCurrentLocation: Bool
     let localFormattedTime: String
     let currentWeather: String
+    let currentConditionsSymbolName: String
+    let minimumTemperature: String
+    let maximumTemperature: String
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+    }
+
+    static func == (lhs: FavouriteViewDescriptor, rhs: FavouriteViewDescriptor) -> Bool {
+        return lhs.identifier == rhs.identifier
+    }
 }

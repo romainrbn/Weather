@@ -51,19 +51,43 @@ final class HomePresenter {
             guard let self else { return }
 
             do {
-                try await dependencies.store.createFavorite(
-                    from: .init(
-                        identifier: UUID(),
-                        latitude: 45,
-                        longitude: 0.4,
-                        timezone: .current,
-                        locationName: "Paris",
-                        currentTemperature: 30,
-                        minTemperature: 29,
-                        maxTemperature: 32
+                let latitude = 48.866667
+                let longitude = 2.333333
+
+                var dto = FavouriteItemDTO(
+                    identifier: UUID().uuidString,
+                    latitude: latitude,
+                    longitude: longitude,
+                    timezone: .current,
+                    locationName: "Paris",
+                    currentWeather: nil,
+                    todayTemperaturesRange: nil
+                )
+
+                let weatherData = try await dependencies.favouriteStore.loadWeatherData(
+                    latitude: latitude,
+                    longitude: longitude
+                )
+
+                guard let mainWeather = weatherData.weather.first else { return }
+
+                dto.currentWeather = WeatherReport(
+                    celsiusTemperature: Int(weatherData.mainInfo.temperature.rounded()),
+                    condition: APIWeatherConditionMapping.map(
+                        weatherID: mainWeather.id
                     )
                 )
-                let favorites = try await dependencies.store.fetchFavorites()
+                dto.todayTemperaturesRange = .init(
+                    minimumCelsiusTemperature: Int(weatherData.mainInfo.minTemperature.rounded()),
+                    maximumCelsiusTemperature: Int(weatherData.mainInfo.maxTemperature.rounded())
+                )
+
+                try await dependencies.favouriteStore.createFavorite(
+                    from: dto
+                )
+
+                let favorites = try await dependencies.favouriteStore.fetchFavorites()
+
                 state.favoritesDTOs = favorites
             } catch {
                 print("Error!")
@@ -93,8 +117,15 @@ final class HomePresenter {
             return
         }
         let module = ForecastDetailModule(
-            input: ForecastDetailInput(from: associatedDTO),
-            dependencies: ForecastDetailDependencies(favouriteStore: dependencies.store)
+            input: ForecastDetailInput(
+                latitude: associatedDTO.latitude,
+                longitude: associatedDTO.longitude,
+                currentWeather: associatedDTO.currentWeather
+            ),
+            dependencies: ForecastDetailDependencies(
+                favouriteStore: dependencies.favouriteStore,
+                forecastStore: dependencies.forecastStore
+            )
         )
 
         viewContract?.present(module.viewController, animated: true)
@@ -106,10 +137,12 @@ final class HomePresenter {
 
     @MainActor
     func didTapSettingsButton() {
-        viewContract?.present(
-            UIHostingController(rootView: UserPreferencesView()),
-            animated: true
-        )
+        state.favoritesDTOs.shuffle()
+        updateView()
+//        viewContract?.present(
+//            UIHostingController(rootView: UserPreferencesView()),
+//            animated: true
+//        )
     }
 
     func removeFavorite(_ item: FavouriteViewDescriptor) {
@@ -123,7 +156,7 @@ final class HomePresenter {
         
         Task {
             do {
-                try await dependencies.store.removeFavorite(associatedDTO)
+                try await dependencies.favouriteStore.removeFavorite(associatedDTO)
             } catch {
                 // Display cannot remove item error
             }
@@ -134,7 +167,7 @@ final class HomePresenter {
 
     private func observeFavoritesStream() {
         favouriteStreamTask = Task {
-            for await change in dependencies.store.favouritesChangeStream() {
+            for await change in dependencies.favouriteStore.favouritesChangeStream() {
                 switch change {
                 case .added(let dto):
                     guard state.favoritesDTOs.contains(dto) == false else { return }

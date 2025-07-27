@@ -16,7 +16,8 @@ struct DBFavouriteConverter: DTOConverter {
         guard
             let id = object.localIdentifier,
             let timezoneIdentifier = object.timezoneIdentifier,
-            let timezone = TimeZone(identifier: timezoneIdentifier)
+            let timezone = TimeZone(identifier: timezoneIdentifier),
+            let locationName = object.locationName
         else {
             throw DBConverterError.missingMandatoryData
         }
@@ -26,7 +27,7 @@ struct DBFavouriteConverter: DTOConverter {
             latitude: object.latitude,
             longitude: object.longitude,
             timezone: timezone,
-            locationName: nil,
+            locationName: locationName,
             currentWeather: createCurrentWeatherObject(
                 temperature: object.temperature,
                 rawCondition: object.condition

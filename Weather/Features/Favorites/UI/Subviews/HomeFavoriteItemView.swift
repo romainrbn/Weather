@@ -40,7 +40,7 @@ struct HomeFavoriteItemView: View {
     }
 
     private var conditionsSymbolView: some View {
-        Image(systemName: "cloud.sun.fill")
+        Image(systemName: item.currentConditionsSymbolName)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .symbolRenderingMode(.palette)
@@ -53,7 +53,7 @@ struct HomeFavoriteItemView: View {
             Text(item.locationName)
                 .font(.title3.bold())
 
-            Text("09:41 AM")
+            Text(item.localFormattedTime)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -61,11 +61,24 @@ struct HomeFavoriteItemView: View {
 
     private var currentConditionsView: some View {
         VStack(alignment: .center, spacing: .spacing200) {
-            Text("11°")
+            Text(item.currentWeather)
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
 
-            Text(item.currentWeather)
-                .font(.caption)
+            HStack(spacing: .spacing200) {
+                HStack(spacing: .spacing50) {
+                    Image(systemName: "arrow.down")
+                    Text(item.minimumTemperature)
+                }
+
+                Divider()
+
+                HStack(spacing: .spacing50) {
+                    Image(systemName: "arrow.up")
+                    Text(item.maximumTemperature)
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
     }
 }

@@ -16,20 +16,14 @@ extension Route {
     func toRequest() throws -> URLRequest {
         guard
             let baseURL = URL(string: Constants.baseURLString),
-            var urlComponents = URLComponents(string: baseURL.absoluteString)
+            var urlComponents = URLComponents(string: baseURL.appendingPathComponent(path).absoluteString)
         else {
             throw RouteRequestBuildError.badBaseURL
         }
 
-        urlComponents.queryItems = queryParameters
+        urlComponents.queryItems = queryParams.map { URLQueryItem(name: $0.key, value: $0.value) }
 
-        var url = urlComponents.url?.appendingPathComponent(path)
-
-//        pathParameters.forEach {
-//            url?.appendPathComponent($0)
-//        }
-
-        guard let url else { throw RouteRequestBuildError.badURL }
+        guard let url = urlComponents.url else { throw RouteRequestBuildError.badURL }
 
         var request = URLRequest(url: url)
         request.timeoutInterval = TimeInterval(Constants.maxTimeout)

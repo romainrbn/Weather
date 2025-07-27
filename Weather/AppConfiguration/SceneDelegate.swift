@@ -20,9 +20,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let homeModule = HomeModule(
             dependencies: HomeDependencies(
                 citySearchService: WeatherLocalCitySearchService(),
-                store: LiveFavouriteStore(
+                favouriteStore: LiveFavouriteStore(
                     localRepository: LiveFavouriteLocalRepository(),
                     remoteRepository: LiveFavouriteRemoteRepository()
+                ),
+                forecastStore: LiveForecastStore(
+                    repository: LiveForecastRemoteRepository()
                 )
             )
         )

@@ -10,19 +10,17 @@ import Foundation
 struct WSForecastConverter {
     static func convert(
         currentWeather: WeatherReport,
-        currentDayTemperatureRanges: CurrentDayTemperatureRange,
         wsForecast: APIWeatherForecast
     ) -> ForecastDTO {
+        let (hourlyConditions, dailyConditions) = ForecastAggregator.makeHourlyAndDaily(
+            from: wsForecast.list
+        )
+
         return ForecastDTO(
             cityName: wsForecast.city.name,
             currentWeather: currentWeather,
-            currentDayTemperatureRange: currentDayTemperatureRanges,
-            hourlyDetailedConditions: [HourlyForecast],
-            nextDaysDetailedConditions: [DailyForecast]
+            hourlyDetailedConditions: hourlyConditions,
+            nextDaysDetailedConditions: dailyConditions
         )
-    }
-
-    private static func createHourlyForecast() {
-
     }
 }

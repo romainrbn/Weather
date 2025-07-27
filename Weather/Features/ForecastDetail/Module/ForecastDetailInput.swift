@@ -12,17 +12,11 @@ import Foundation
 struct ForecastDetailInput: Hashable {
     let latitude: Double
     let longitude: Double
-    let initialDTO: FavouriteItemDTO?
+    let currentWeather: WeatherReport?
 
-    init(from dto: FavouriteItemDTO) {
-        self.latitude = dto.latitude
-        self.longitude = dto.longitude
-        self.initialDTO = dto
-    }
-
-    init(latitude: Double, longitude: Double) {
+    init(latitude: Double, longitude: Double, currentWeather: WeatherReport?) {
         self.latitude = latitude
         self.longitude = longitude
-        self.initialDTO = nil
+        self.currentWeather = currentWeather
     }
 }

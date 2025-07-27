@@ -10,17 +10,8 @@ import Combine
 
 protocol Route {
     associatedtype OutputType: Decodable
-    associatedtype EncoderType: TopLevelEncoder
 
     var path: String { get }
-    var encoder: EncoderType { get }
-
-    var queryParameters: [URLQueryItem] { get }
+    var queryParams: [String: String] { get }
     func toRequest() throws -> URLRequest
-}
-
-extension Route {
-    var encoder: JSONEncoder { JSONEncoder() }
-
-    var queryParameters: [URLQueryItem] { [] }
 }

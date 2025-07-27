@@ -10,7 +10,6 @@ import Foundation
 struct ForecastDTO {
     let cityName: String
     let currentWeather: WeatherReport
-    let currentDayTemperatureRange: CurrentDayTemperatureRange
     let hourlyDetailedConditions: [HourlyForecast]
     let nextDaysDetailedConditions: [DailyForecast]
 }

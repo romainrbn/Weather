@@ -28,7 +28,6 @@ struct APIWeatherMainInfo: Decodable {
     let seaLevel: Int
     let groundLevel: Int
     let humidity: Int
-    let temperatureKf: Double
 
     enum CodingKeys: String, CodingKey {
         case temperature = "temp"
@@ -39,7 +38,6 @@ struct APIWeatherMainInfo: Decodable {
         case seaLevel = "sea_level"
         case groundLevel = "grnd_level"
         case humidity
-        case temperatureKf = "temp_kf"
     }
 }
 

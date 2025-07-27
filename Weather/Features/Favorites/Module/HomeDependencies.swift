@@ -14,5 +14,6 @@ import Foundation
 /// to keep the structure approachable while still reflecting good practices.
 struct HomeDependencies {
     let citySearchService: WeatherLocalCitySearchService
-    let store: FavouriteStore
+    let favouriteStore: FavouriteStore
+    let forecastStore: ForecastStore
 }
