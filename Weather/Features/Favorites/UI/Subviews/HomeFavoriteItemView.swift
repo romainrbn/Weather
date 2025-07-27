@@ -13,9 +13,9 @@ private enum Constants {
 
 struct HomeFavoriteItemView: View {
 
-    private let item: HomeLocationItem
+    private let item: FavouriteViewDescriptor
 
-    init(item: HomeLocationItem) {
+    init(item: FavouriteViewDescriptor) {
         self.item = item
     }
 

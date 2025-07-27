@@ -8,21 +8,20 @@
 import SwiftUI
 
 struct HomeFavoriteItemSwipeActionsView: View {
+    private let onRemoveFavorite: () -> Void
+
+    init(onRemoveFavorite: @escaping () -> Void) {
+        self.onRemoveFavorite = onRemoveFavorite
+    }
+
     var body: some View {
         Group {
-            Button {} label: {
-                Label("Pin", systemImage: "mappin.circle")
+            Button {
+                onRemoveFavorite()
+            } label: {
+                Label("Remove from favorites", systemImage: "trash")
             }
-            .tint(.blue)
-
-            Button {} label: {
-                Label("Remove from favorites", systemImage: "star.slash.fill")
-            }
-            .tint(.orange)
+            .tint(.red)
         }
     }
-}
-
-#Preview {
-    HomeFavoriteItemSwipeActionsView()
 }

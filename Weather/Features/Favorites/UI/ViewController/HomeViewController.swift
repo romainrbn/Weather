@@ -14,7 +14,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
     private lazy var collectionView: UICollectionView = createCollectionView()
     private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
-    private lazy var dataSource: HomeViewDataSource = HomeViewDataSource(collectionView: collectionView)
+    private lazy var dataSource: HomeViewDataSource = HomeViewDataSource(collectionView: collectionView, presenter: presenter)
     private lazy var searchResultsController: CitySearchResultsController = createSearchResultsController()
     private lazy var searchController: UISearchController = createSearchController()
     private lazy var emptyStateView = createEmptyView()
@@ -29,17 +29,17 @@ final class HomeViewController: UIViewController, HomeViewContract {
         presenter?.loadData()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        collectionView.backgroundView = emptyStateView
-        collectionView.backgroundView?.center(within: view)
-    }
-
     // MARK: - HomeViewContract conformance
 
     func display(_ content: HomeContent) {
         dataSource.content = content
-        collectionView.backgroundView?.isHidden = !content.sections.isEmpty
+
+        let hasData = !content.sections.isEmpty
+        emptyStateView.isHidden = hasData
+
+        if #available(iOS 17.4, *) {
+            collectionView.bouncesVertically = hasData
+        }
     }
 
     func performCitySearch(_ query: String) {
@@ -61,6 +61,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
         setupNavigation()
         buildViewHierarchy()
         setConstraints()
+        setupEmptyBackgroundView()
     }
 
     private func setupNavigation() {
@@ -94,8 +95,6 @@ final class HomeViewController: UIViewController, HomeViewContract {
             // Create the layout depending of the current section.
             switch section {
             case .favourites:
-                return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
-            case .recentlyVisited:
                 return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
             }
         }
@@ -137,6 +136,12 @@ final class HomeViewController: UIViewController, HomeViewContract {
         )
     }
 
+    private func setupEmptyBackgroundView() {
+        view.addSubview(emptyStateView)
+        emptyStateView.fitHorizontallyWithinParent(view)
+        emptyStateView.center(within: view)
+    }
+
     private func createSettingsBarButtonItem() -> UIBarButtonItem {
         let buttonItem = UIBarButtonItem(
             image: UIImage(systemName: "gear"),
@@ -154,6 +159,16 @@ final class HomeViewController: UIViewController, HomeViewContract {
     @objc
     private func didTapSettingsButton() {
         presenter?.didTapSettingsButton()
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+
+extension HomeViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let item = dataSource.content.sections[indexPath.section].items[indexPath.item]
+
+        presenter?.didSelectItem(item)
     }
 }
 

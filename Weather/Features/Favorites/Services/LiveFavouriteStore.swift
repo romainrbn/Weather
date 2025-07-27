@@ -10,16 +10,21 @@ import Foundation
 protocol FavouriteStore {
     func createFavorite(from dto: FavouriteItemDTO) async throws
     func fetchFavorites() async throws -> [FavouriteItemDTO]
+    func removeFavorite(_ dto: FavouriteItemDTO) async throws
+
+    func favouritesChangeStream() -> AsyncStream<FavouriteChange>
 }
 
 enum FavouriteStoreError: LocalizedError {
     case missingNecessaryData
 }
 
-struct LiveFavouriteStore: FavouriteStore {
+final class LiveFavouriteStore: FavouriteStore {
 
     private let localRepository: FavouriteLocalRepository
     private let remoteRepository: FavouriteRemoteRepository
+
+    private var continuation: AsyncStream<FavouriteChange>.Continuation?
 
     init(
         localRepository: FavouriteLocalRepository,
@@ -28,6 +33,14 @@ struct LiveFavouriteStore: FavouriteStore {
         self.localRepository = localRepository
         self.remoteRepository = remoteRepository
     }
+
+    func favouritesChangeStream() -> AsyncStream<FavouriteChange> {
+        AsyncStream { continuation in
+            self.continuation = continuation
+        }
+    }
+
+    // MARK: CRUD Favourites
 
     func createFavorite(
         from dto: FavouriteItemDTO
@@ -40,15 +53,16 @@ struct LiveFavouriteStore: FavouriteStore {
             throw FavouriteStoreError.missingNecessaryData
         }
 
-        try await localRepository
-            .createDBFavorite(
-                latitude: dto.latitude,
-                longitude: dto.longitude,
-                latestTemperature: currentTemperature,
-                maxTemperature: maxTemperature,
-                minTemperature: minTemperature,
-                timeZone: dto.timezone
-            )
+        try await localRepository.createDBFavourite(
+            latitude: dto.latitude,
+            longitude: dto.longitude,
+            latestTemperature: currentTemperature,
+            maxTemperature: maxTemperature,
+            minTemperature: minTemperature,
+            timeZone: dto.timezone
+        )
+
+        continuation?.yield(.added(dto))
     }
 
     func fetchFavorites() async throws -> [FavouriteItemDTO] {
@@ -57,21 +71,29 @@ struct LiveFavouriteStore: FavouriteStore {
             converter: DBFavouriteConverter()
         )
 
-        return try await fetchRequest.execute()
+        let results = try await fetchRequest.execute()
+
+        return results
+    }
+
+    func removeFavorite(_ dto: FavouriteItemDTO) async throws {
+        try await localRepository.deleteDBFavourite(identifier: dto.identifier)
+        continuation?.yield(.removed(dto))
     }
 
     func loadWeatherData(for favorites: inout [FavouriteItemDTO]) async throws {
         // TODO: Task group for parallelizaiton
         for index in favorites.indices {
             var favorite = favorites[index]
+
             let currentWeather = try await remoteRepository.loadCurrentWeather(
                 latitude: favorite.latitude,
                 longitude: favorite.longitude
             )
 
-            favorites[index].currentTemperature = Int(currentWeather.mainInfo.temperature)
-            favorites[index].minTemperature = Int(currentWeather.mainInfo.minTemperature)
-            favorites[index].maxTemperature = Int(currentWeather.mainInfo.maxTemperature)
+            favorite.currentTemperature = Int(currentWeather.mainInfo.temperature)
+            favorite.minTemperature = Int(currentWeather.mainInfo.minTemperature)
+            favorite.maxTemperature = Int(currentWeather.mainInfo.maxTemperature)
         }
     }
 }

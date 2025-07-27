@@ -15,7 +15,6 @@ protocol FavouriteRemoteRepository {
 }
 
 struct LiveFavouriteRemoteRepository: FavouriteRemoteRepository {
-
     private let router: Router
 
     init(router: Router = LiveRouter()) {

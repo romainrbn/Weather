@@ -8,13 +8,17 @@
 import Foundation
 
 protocol FavouriteLocalRepository {
-    func createDBFavorite(
+    func createDBFavourite(
         latitude: Double,
         longitude: Double,
         latestTemperature: Int,
         maxTemperature: Int,
         minTemperature: Int,
         timeZone: TimeZone
+    ) async throws
+
+    func deleteDBFavourite(
+        identifier: UUID
     ) async throws
 }
 
@@ -26,7 +30,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
         self.manager = manager
     }
 
-    func createDBFavorite(
+    func createDBFavourite(
         latitude: Double,
         longitude: Double,
         latestTemperature: Int,
@@ -37,7 +41,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
         let context = manager.backgroundContext
         try await context.perform {
             let favourite = DBFavorite(context: context)
-            favourite.id = UUID()
+            favourite.localIdentifier = UUID()
             favourite.latitude = latitude
             favourite.longitude = longitude
             favourite.timezoneIdentifier = timeZone.identifier
@@ -48,5 +52,12 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
 
             try context.save()
         }
+    }
+
+    func deleteDBFavourite(identifier: UUID) async throws {
+        try await FavouriteDeleteRequest()
+            .setFavouriteIdentifier(identifier)
+            .setFetchLimit(1)
+            .execute()
     }
 }

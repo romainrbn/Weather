@@ -13,8 +13,8 @@ import SwiftUI
 /// It helps us split the code between pure UI and cell dequeuing logic, which can easily become verbose.
 @MainActor
 final class HomeViewDataSource {
-    typealias HomeDataSource = UICollectionViewDiffableDataSource<HomeSection, HomeItem>
-    typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<HomeSection, HomeItem>
+    typealias HomeDataSource = UICollectionViewDiffableDataSource<HomeSection, FavouriteViewDescriptor>
+    typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<HomeSection, FavouriteViewDescriptor>
 
     var content: HomeContent = .empty {
         didSet {
@@ -23,6 +23,7 @@ final class HomeViewDataSource {
         }
     }
 
+    private weak var presenter: HomePresenter?
     private let collectionView: UICollectionView
 
     private var currentSnapshot: DataSourceSnapshot {
@@ -37,8 +38,9 @@ final class HomeViewDataSource {
 
     private lazy var dataSource = createDataSource(for: collectionView)
 
-    init(collectionView: UICollectionView) {
+    init(collectionView: UICollectionView, presenter: HomePresenter?) {
         self.collectionView = collectionView
+        self.presenter = presenter
     }
 
     private func createDataSource(
@@ -48,14 +50,11 @@ final class HomeViewDataSource {
         let headerRegistration = headerRegistration()
 
         let dataSource = HomeDataSource(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
-            switch itemIdentifier {
-            case .location(let locationItem):
-                return collectionView.dequeueConfiguredReusableCell(
-                    using: favouriteRegistration,
-                    for: indexPath,
-                    item: locationItem
-                )
-            }
+            return collectionView.dequeueConfiguredReusableCell(
+                using: favouriteRegistration,
+                for: indexPath,
+                item: itemIdentifier
+            )
         }
 
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
@@ -75,12 +74,16 @@ final class HomeViewDataSource {
 // MARK: - Registrations
 
 extension HomeViewDataSource {
-    private func favouriteCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, HomeLocationItem> {
-        return UICollectionView.CellRegistration<UICollectionViewCell, HomeLocationItem> { (cell, _, item) in
+    private func favouriteCellRegistration() -> UICollectionView.CellRegistration<
+        UICollectionViewCell, FavouriteViewDescriptor
+    > {
+        return UICollectionView.CellRegistration<UICollectionViewCell, FavouriteViewDescriptor> { (cell, _, item) in
             cell.contentConfiguration = UIHostingConfiguration(content: {
                 HomeFavoriteItemView(item: item)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        HomeFavoriteItemSwipeActionsView()
+                        HomeFavoriteItemSwipeActionsView(onRemoveFavorite: { [weak self] in
+                            self?.presenter?.removeFavorite(item)
+                        })
                     }
                     .listRowInsets(
                         EdgeInsets(
