@@ -51,7 +51,7 @@ extension Router {
         throw RouterError.serverError(errorCode: errorCode)
     }
 
-    func performHTTPRequest<T: Route>(
+    private func performHTTPRequest<T: Route>(
         _ route: T
     ) async throws -> (Data, URLResponse) {
         var request: URLRequest!

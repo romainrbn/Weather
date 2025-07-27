@@ -15,20 +15,12 @@ protocol Route {
     var path: String { get }
     var encoder: EncoderType { get }
 
-    var additionalQueryParameters: [URLQueryItem] { get }
-    var pathParameters: [String] { get }
-
+    var queryParameters: [URLQueryItem] { get }
     func toRequest() throws -> URLRequest
 }
 
 extension Route {
-    var additionalQueryParameters: [URLQueryItem] { [] }
-
-    var pathParameters: [String] { [] }
-
     var encoder: JSONEncoder { JSONEncoder() }
 
-    var queryParameters: [URLQueryItem]? {
-        additionalQueryParameters
-    }
+    var queryParameters: [URLQueryItem] { [] }
 }

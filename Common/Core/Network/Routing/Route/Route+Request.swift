@@ -25,9 +25,9 @@ extension Route {
 
         var url = urlComponents.url?.appendingPathComponent(path)
 
-        pathParameters.forEach {
-            url?.appendPathComponent($0)
-        }
+//        pathParameters.forEach {
+//            url?.appendPathComponent($0)
+//        }
 
         guard let url else { throw RouteRequestBuildError.badURL }
 

@@ -1,5 +1,5 @@
 //
-//  APIWeatherForecast.swift
+//  APIWeatherForecastModels.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -9,37 +9,13 @@ import Foundation
 
 struct APIWeatherForecast: Decodable {
     let status: String
-    let list: [APIWeatherForecastSnapshot]
+    let list: [APIWeatherSnapshot]
     let city: APIWeatherCity
 
     enum CodingKeys: String, CodingKey {
         case status = "cod"
         case list
         case city
-    }
-}
-
-struct APIWeatherForecastSnapshot: Decodable {
-    let timestamp: TimeInterval
-    let main: APIWeatherMainInfo
-    let weather: [APIWeatherCondition]
-    let clouds: APIWeatherClouds
-    let wind: APIWeatherWind
-    let visibility: Int
-    let precipitationProbability: Double
-    let system: APIWeatherSystemInfo
-    let dateText: String
-
-    enum CodingKeys: String, CodingKey {
-        case timestamp = "dt"
-        case main
-        case weather
-        case clouds
-        case wind
-        case visibility
-        case precipitationProbability = "pop"
-        case system = "sys"
-        case dateText = "dt_txt"
     }
 }
 
