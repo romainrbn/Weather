@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FavouriteItemDTO: Equatable {
+struct FavouriteItemDTO: Hashable {
     let identifier: UUID
     let latitude: Double
     let longitude: Double
@@ -33,5 +33,7 @@ struct FavouriteItemDTO: Equatable {
         self.timezone = timezone
         self.locationName = locationName
         self.currentTemperature = currentTemperature
+        self.maxTemperature = maxTemperature
+        self.minTemperature = minTemperature
     }
 }

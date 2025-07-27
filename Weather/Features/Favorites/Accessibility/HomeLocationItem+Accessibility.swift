@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension HomeLocationItem {
+extension FavouriteViewDescriptor {
     // In a production context, we would use a LocalizedString here to provide VoiceOver content in different languages.
     var accessibilityLabel: String {
         "The current weather is \(currentWeather)"

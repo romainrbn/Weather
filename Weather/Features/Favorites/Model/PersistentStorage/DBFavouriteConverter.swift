@@ -14,7 +14,7 @@ enum DBConverterError: Error {
 struct DBFavouriteConverter: DTOConverter {
     func convert(_ object: DBFavorite) throws -> FavouriteItemDTO {
         guard
-            let id = object.id,
+            let id = object.localIdentifier,
             let timezoneIdentifier = object.timezoneIdentifier,
             let timezone = TimeZone(identifier: timezoneIdentifier)
         else {

@@ -24,14 +24,12 @@ struct HomeContentMapper {
         }
         
         let items = items.map { favouriteItem in
-            HomeItem.location(
-                HomeLocationItem(
-                    identifier: favouriteItem.identifier.uuidString,
-                    locationName: favouriteItem.locationName ?? "-",
-                    isCurrentLocation: false,
-                    localFormattedTime: "Midnight",
-                    currentWeather: favouriteItem.currentTemperature?.formatted() ?? "-"
-                )
+            FavouriteViewDescriptor(
+                identifier: favouriteItem.identifier,
+                locationName: favouriteItem.locationName ?? "-",
+                isCurrentLocation: false,
+                localFormattedTime: "Midnight",
+                currentWeather: favouriteItem.currentTemperature?.formatted() ?? "-"
             )
         }
 
