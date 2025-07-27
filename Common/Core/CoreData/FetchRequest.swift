@@ -20,6 +20,8 @@ class FetchRequest<Converter: DTOConverter> {
 
     private var predicate: NSPredicate?
     private var sortDescriptors: [NSSortDescriptor] = []
+    private var fetchLimit: Int?
+
     private let context: NSManagedObjectContext
     private let converter: Converter
 
@@ -34,6 +36,12 @@ class FetchRequest<Converter: DTOConverter> {
         } else {
             predicate = newPredicate
         }
+        return self
+    }
+
+    func setFetchLimit(_ limit: Int) -> Self {
+        fetchLimit = limit
+
         return self
     }
 
@@ -53,6 +61,9 @@ class FetchRequest<Converter: DTOConverter> {
             let request = NSFetchRequest<Entity>(entityName: String(describing: Entity.self))
             request.predicate = predicate
             request.sortDescriptors = sortDescriptors
+            if let fetchLimit {
+                request.fetchLimit = fetchLimit
+            }
             let results = try context.fetch(request)
             return try results.map(self.converter.convert)
         }
@@ -60,10 +71,13 @@ class FetchRequest<Converter: DTOConverter> {
 
     func execute(transaction: @escaping (inout Entity) throws -> Void) async throws -> [DTO] {
         try await context.perform { [weak self] in
-            guard let self else { return [] }
-            let request = NSFetchRequest<Entity>(entityName: String(describing: Entity.self))
+            guard let self, let name = Entity.entity().name else { return [] }
+            let request = NSFetchRequest<Entity>(entityName: name)
             request.predicate = predicate
             request.sortDescriptors = sortDescriptors
+            if let fetchLimit {
+                request.fetchLimit = fetchLimit
+            }
             var results = try context.fetch(request)
 
             for index in results.indices {
