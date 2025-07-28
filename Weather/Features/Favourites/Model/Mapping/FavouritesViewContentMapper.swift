@@ -5,7 +5,7 @@
 //  Created by Romain Rabouan on 7/26/25.
 //
 
-import Foundation
+import SwiftUI
 
 /// Creates the content to display on the favourites view, from the current state of the presenter.
 struct FavouritesViewContentMapper {
@@ -44,7 +44,10 @@ struct FavouritesViewContentMapper {
             currentWeather: formattedTemperature(value: currentWeather.celsiusTemperature),
             currentConditionsSymbolName: currentWeather.condition.associatedSystemSymbolName,
             minimumTemperature: formattedTemperature(value: temperatureRange.minimumCelsiusTemperature),
-            maximumTemperature: formattedTemperature(value: temperatureRange.maximumCelsiusTemperature)
+            maximumTemperature: formattedTemperature(value: temperatureRange.maximumCelsiusTemperature),
+            primaryColor: currentWeather.condition.primaryColor,
+            secondaryColor: currentWeather.condition.secondaryColor,
+            teriaryColor: currentWeather.condition.teriaryColor
         )
     }
 
@@ -67,24 +70,60 @@ struct FavouritesViewContentMapper {
 }
 
 extension WeatherCondition {
-    fileprivate var associatedSystemSymbolName: String {
+    // Allows us to switch only once on all conditions
+    private struct Model {
+        let associatedSystemSymbolName: String
+        let primaryColor: Color
+        let secondaryColor: Color?
+        let teriaryColor: Color?
+
+        init(
+            associatedSystemSymbolName: String,
+            primaryColor: Color,
+            secondaryColor: Color? = nil,
+            teriaryColor: Color? = nil
+        ) {
+            self.associatedSystemSymbolName = associatedSystemSymbolName
+            self.primaryColor = primaryColor
+            self.secondaryColor = secondaryColor
+            self.teriaryColor = teriaryColor
+        }
+    }
+
+    private var model: Model {
         switch self {
         case .clear:
-            return "sun.max.fill"
+            Model(associatedSystemSymbolName: "sun.max.fill", primaryColor: .yellow)
         case .clouds:
-            return "cloud.fill"
+            Model(associatedSystemSymbolName: "cloud.fill", primaryColor: .gray)
         case .thunderstorm:
-            return "cloud.bolt.fill"
+            Model(associatedSystemSymbolName: "cloud.bolt.fill", primaryColor: .gray, secondaryColor: .yellow)
         case .drizzle:
-            return "cloud.drizzle"
+            Model(associatedSystemSymbolName: "cloud.drizzle.fill", primaryColor: .gray, secondaryColor: .blue)
         case .rain:
-            return "cloud.name"
+            Model(associatedSystemSymbolName: "cloud.rain.fill", primaryColor: .gray, secondaryColor: .blue)
         case .snow:
-            return "cloud.snow"
+            Model(associatedSystemSymbolName: "cloud.snow.fill", primaryColor: .gray, secondaryColor: .blue)
         case .atmosphere:
-            return "sun.dust.fill"
+            Model(associatedSystemSymbolName: "sun.dust.fill", primaryColor: .orange, secondaryColor: .yellow)
         case .unknown:
-            return "cloud.sun.rain.fill"
+            Model(associatedSystemSymbolName: "cloud.sun.rain.fill", primaryColor: .gray, secondaryColor: .yellow, teriaryColor: .blue)
         }
+    }
+
+    var associatedSystemSymbolName: String {
+        model.associatedSystemSymbolName
+    }
+
+    var primaryColor: Color {
+        model.primaryColor
+    }
+
+    var secondaryColor: Color {
+        model.secondaryColor ?? model.primaryColor
+    }
+
+    var teriaryColor: Color {
+        model.teriaryColor ?? secondaryColor
     }
 }

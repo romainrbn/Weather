@@ -5,7 +5,7 @@
 //  Created by Romain Rabouan on 7/26/25.
 //
 
-import Foundation
+import SwiftUI
 
 struct FavouriteViewDescriptor: Hashable {
     let identifier: String
@@ -16,6 +16,9 @@ struct FavouriteViewDescriptor: Hashable {
     let currentConditionsSymbolName: String
     let minimumTemperature: String
     let maximumTemperature: String
+    let primaryColor: Color
+    let secondaryColor: Color
+    let teriaryColor: Color
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(identifier)
