@@ -1,5 +1,5 @@
 //
-//  HomeViewLayoutFactory.swift
+//  HomeViewLayoutBuilder.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/25/25.
@@ -16,7 +16,7 @@ private enum Constants {
     static let estimatedHeaderHeight: CGFloat = 75.0
 }
 
-struct HomeViewLayoutFactory {
+struct HomeViewLayoutBuilder {
     enum SupplementaryElementKind {
         static let headerElementKind = TitleSupplementaryView.reuseIdentifier
     }

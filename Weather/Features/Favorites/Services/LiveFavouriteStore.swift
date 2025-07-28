@@ -7,6 +7,11 @@
 
 import Foundation
 
+/// The store orchestrates access to remote and local data sources.
+///
+/// This design might seem more elaborate than required for a 2 screens app,
+/// but it reflects the kind of scalable and testable architecture I would apply
+/// in a production environment.
 protocol FavouriteStore {
     func createFavorite(from dto: FavouriteItemDTO) async throws
     func fetchFavorites() async throws -> [FavouriteItemDTO]

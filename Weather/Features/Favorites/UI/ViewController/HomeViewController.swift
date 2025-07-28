@@ -88,7 +88,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
     private func createCollectionViewLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider = { (_: Int, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            return HomeViewLayoutFactory.favoritesLayoutSection(layoutEnvironment: environment)
+            return HomeViewLayoutBuilder.favoritesLayoutSection(layoutEnvironment: environment)
         }
 
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)

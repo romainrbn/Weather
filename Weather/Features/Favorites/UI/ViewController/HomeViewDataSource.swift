@@ -60,7 +60,7 @@ final class HomeViewDataSource {
 
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             switch kind {
-            case HomeViewLayoutFactory.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
+            case HomeViewLayoutBuilder.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
             default:
                 assert(false, "This supplementary is not handled. Please handle it.")
@@ -99,7 +99,7 @@ extension HomeViewDataSource {
 
     private func headerRegistration() -> UICollectionView.SupplementaryRegistration<TitleSupplementaryView> {
         return UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(
-            elementKind: HomeViewLayoutFactory.SupplementaryElementKind.headerElementKind
+            elementKind: HomeViewLayoutBuilder.SupplementaryElementKind.headerElementKind
         ) { [weak self] (cell, _, indexPath) in
             guard
                 let self,

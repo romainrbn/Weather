@@ -137,12 +137,10 @@ final class HomePresenter {
 
     @MainActor
     func didTapSettingsButton() {
-        state.favoritesDTOs.shuffle()
-        updateView()
-//        viewContract?.present(
-//            UIHostingController(rootView: UserPreferencesView()),
-//            animated: true
-//        )
+        viewContract?.present(
+            UIHostingController(rootView: UserPreferencesView()),
+            animated: true
+        )
     }
 
     func removeFavorite(_ item: FavouriteViewDescriptor) {

@@ -9,14 +9,13 @@ import Foundation
 
 protocol ForecastStore {
     /**
-
      Loads the forecast for the provided coordinates.
 
      Although the OpenWeatherMap API supports querying by city name, it's probably better
      to use latitude and longitude for improved reliability.
 
      This is because `MKLocalSearch` may return city names that don't exactly
-     match those expected by the geocoding version of the API (language, uniqueness, diacritics),
+     match those expected by the geocoding version of the API (language, uniqueness, diacritics...),
      leading to inconsistent results.
 
      For example: "München" -> "Munich", or "San Jose (CA)" -> "San Jose (Costa Rica)"
