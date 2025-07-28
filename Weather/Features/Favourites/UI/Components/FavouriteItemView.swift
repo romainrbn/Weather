@@ -1,5 +1,5 @@
 //
-//  HomeFavoriteItemView.swift
+//  FavouriteItemView.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -11,7 +11,7 @@ private enum Constants {
     static let currentConditionsSymbolFrame: CGFloat = 48
 }
 
-struct HomeFavoriteItemView: View {
+struct FavouriteItemView: View {
 
     private let item: FavouriteViewDescriptor
 

@@ -1,5 +1,5 @@
 //
-//  HomeEmptyView.swift
+//  FavouritesEmptyView.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -13,7 +13,7 @@ private enum Constants {
 }
 
 /// Mimics a `ContentUnavailableView`, but for iOS 16+.
-struct HomeEmptyView: View {
+struct FavouritesEmptyView: View {
 
     private let onUseCurrentLocationTapped: (() -> Void)?
 

@@ -7,15 +7,15 @@
 
 import Foundation
 
-/// Creates the content to display on the home view, from the current state of the presenter.
+/// Creates the content to display on the favourites view, from the current state of the presenter.
 struct FavouritesViewContentMapper {
-    static func map(_ state: HomePresenter.State) -> FavouritesViewContent {
+    static func map(_ state: FavouritesPresenter.State) -> FavouritesViewContent {
         FavouritesViewContent(
-            items: buildFavoritesItems(from: state.favoritesDTOs)
+            items: buildFavouriteItems(from: state.favouriteDTOs)
         )
     }
 
-    private static func buildFavoritesItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {
+    private static func buildFavouriteItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {
         guard !items.isEmpty else {
             return []
         }

@@ -1,5 +1,5 @@
 //
-//  HomePresenter.swift
+//  FavouritesPresenter.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -9,14 +9,14 @@ import UIKit
 import SwiftUI
 import MapKit
 
-final class HomePresenter {
+final class FavouritesPresenter {
     struct State {
-        var favoritesDTOs: [FavouriteItemDTO] = []
+        var favouriteDTOs: [FavouriteItemDTO] = []
         var searchQuery: String = ""
     }
 
-    private let dependencies: HomeDependencies
-    private(set) weak var viewContract: HomeViewContract?
+    private let dependencies: FavouriteDependencies
+    private(set) weak var viewContract: FavouritesViewContract?
 
     private var loadDataTask: Task<Void, Error>?
     private var favouriteStreamTask: Task<Void, Never>?
@@ -24,13 +24,13 @@ final class HomePresenter {
     var state = State()
 
     init(
-        dependencies: HomeDependencies,
-        viewContract: HomeViewContract
+        dependencies: FavouriteDependencies,
+        viewContract: FavouritesViewContract
     ) {
         self.dependencies = dependencies
         self.viewContract = viewContract
 
-        observeFavoritesStream()
+        observeFavouritesStream()
     }
 
     deinit {
@@ -82,13 +82,13 @@ final class HomePresenter {
                     maximumCelsiusTemperature: Int(weatherData.mainInfo.maxTemperature.rounded())
                 )
 
-                try await dependencies.favouriteStore.createFavorite(
+                try await dependencies.favouriteStore.createFavourite(
                     from: dto
                 )
 
-                let favorites = try await dependencies.favouriteStore.fetchFavorites()
+                let favourites = try await dependencies.favouriteStore.fetchFavourites()
 
-                state.favoritesDTOs = favorites
+                state.favouriteDTOs = favourites
             } catch {
                 print("Error!")
             }
@@ -113,7 +113,7 @@ final class HomePresenter {
 
     @MainActor
     func didSelectItem(_ item: FavouriteViewDescriptor) {
-        guard let associatedDTO = state.favoritesDTOs.first(where: { $0.identifier == item.identifier }) else {
+        guard let associatedDTO = state.favouriteDTOs.first(where: { $0.identifier == item.identifier }) else {
             return
         }
         let module = ForecastDetailModule(
@@ -143,9 +143,9 @@ final class HomePresenter {
         )
     }
 
-    func removeFavorite(_ item: FavouriteViewDescriptor) {
+    func removeFavourite(_ item: FavouriteViewDescriptor) {
         guard
-            let associatedDTO = state.favoritesDTOs.first(
+            let associatedDTO = state.favouriteDTOs.first(
                 where: { $0.identifier == item.identifier }
             )
         else {
@@ -154,7 +154,7 @@ final class HomePresenter {
         
         Task {
             do {
-                try await dependencies.favouriteStore.removeFavorite(associatedDTO)
+                try await dependencies.favouriteStore.removeFavourite(associatedDTO)
             } catch {
                 // Display cannot remove item error
             }
@@ -163,16 +163,16 @@ final class HomePresenter {
 
     // MARK: - Observation
 
-    private func observeFavoritesStream() {
+    private func observeFavouritesStream() {
         favouriteStreamTask = Task {
             for await change in dependencies.favouriteStore.favouritesChangeStream() {
                 switch change {
                 case .added(let dto):
-                    guard state.favoritesDTOs.contains(dto) == false else { return }
+                    guard state.favouriteDTOs.contains(dto) == false else { return }
 
-                    state.favoritesDTOs.append(dto)
+                    state.favouriteDTOs.append(dto)
                 case .removed(let dto):
-                    state.favoritesDTOs.removeAll(where: { $0 == dto })
+                    state.favouriteDTOs.removeAll(where: { $0 == dto })
                 }
 
                 await MainActor.run {

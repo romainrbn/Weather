@@ -46,7 +46,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
     ) async throws {
         let context = manager.backgroundContext
         try await context.perform {
-            let favourite = DBFavorite(context: context)
+            let favourite = DBFavourite(context: context)
             favourite.localIdentifier = identifier
             favourite.latitude = latitude
             favourite.longitude = longitude

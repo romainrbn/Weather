@@ -1,5 +1,5 @@
 //
-//  HomeDependencies.swift
+//  FavouriteDependencies.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/26/25.
@@ -12,7 +12,7 @@ import Foundation
 ///
 /// For this take-home project, I chose to favor simplicity and readability over abstraction,
 /// to keep the structure approachable while still reflecting good practices.
-struct HomeDependencies {
+struct FavouriteDependencies {
     let citySearchService: WeatherLocalCitySearchService
     let favouriteStore: FavouriteStore
     let forecastStore: ForecastStore

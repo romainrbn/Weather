@@ -1,5 +1,5 @@
 //
-//  HomeViewController.swift
+//  FavouritesViewController.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/25/25.
@@ -8,18 +8,21 @@
 import UIKit
 import MapKit
 
-final class HomeViewController: UIViewController, HomeViewContract {
+final class FavouritesViewController: UIViewController, FavouritesViewContract {
 
     // MARK: - Properties
 
     private lazy var collectionView: UICollectionView = createCollectionView()
     private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
-    private lazy var dataSource: HomeViewDataSource = HomeViewDataSource(collectionView: collectionView, presenter: presenter)
+    private lazy var dataSource: FavouritesViewDataSource = FavouritesViewDataSource(
+        collectionView: collectionView,
+        presenter: presenter
+    )
     private lazy var searchResultsController: CitySearchResultsController = createSearchResultsController()
     private lazy var searchController: UISearchController = createSearchController()
     private lazy var emptyStateView = createEmptyView()
 
-    weak var presenter: HomePresenter?
+    weak var presenter: FavouritesPresenter?
 
     // MARK: - Lifecycle
 
@@ -29,7 +32,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
         presenter?.loadData()
     }
 
-    // MARK: - HomeViewContract conformance
+    // MARK: - FavouritesViewContract conformance
 
     func display(_ content: FavouritesViewContent) {
         dataSource.content = content
@@ -88,7 +91,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
     private func createCollectionViewLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider = { (_: Int, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            return HomeViewLayoutBuilder.favoritesLayoutSection(layoutEnvironment: environment)
+            return FavouritesViewLayoutBuilder.favouritesLayoutSection(layoutEnvironment: environment)
         }
 
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
@@ -120,9 +123,9 @@ final class HomeViewController: UIViewController, HomeViewContract {
         return controller
     }
 
-    private func createEmptyView() -> HostingView<HomeEmptyView> {
+    private func createEmptyView() -> HostingView<FavouritesEmptyView> {
         HostingView(
-            rootView: HomeEmptyView(onUseCurrentLocationTapped: { [weak self] in
+            rootView: FavouritesEmptyView(onUseCurrentLocationTapped: { [weak self] in
                 self?.presenter?.didTapUseCurrentLocationButton()
             })
         )
@@ -156,7 +159,7 @@ final class HomeViewController: UIViewController, HomeViewContract {
 
 // MARK: - UICollectionViewDelegate
 
-extension HomeViewController: UICollectionViewDelegate {
+extension FavouritesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = dataSource.content.items[indexPath.item]
 
@@ -166,7 +169,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
 // MARK: - UISearchResultsUpdating
 
-extension HomeViewController: UISearchResultsUpdating, UISearchControllerDelegate {
+extension FavouritesViewController: UISearchResultsUpdating, UISearchControllerDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         let query = searchController.searchBar.text ?? ""
         performCitySearch(query)
@@ -175,7 +178,7 @@ extension HomeViewController: UISearchResultsUpdating, UISearchControllerDelegat
 
 // MARK: - CitySearchResultsControllerDelegate
 
-extension HomeViewController: CitySearchResultsControllerDelegate {
+extension FavouritesViewController: CitySearchResultsControllerDelegate {
     func didSelectCity(_ city: MKMapItem) {
         searchController.searchBar.text = ""
         presenter?.state.searchQuery = ""

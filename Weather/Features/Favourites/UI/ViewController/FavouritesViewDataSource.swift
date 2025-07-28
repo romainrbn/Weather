@@ -1,5 +1,5 @@
 //
-//  HomeViewDataSource.swift
+//  FavouritesViewDataSource.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/25/25.
@@ -9,12 +9,12 @@ import UIKit
 import TipKit
 import SwiftUI
 
-/// This code could be integrated directly into `HomeViewController`.
+/// This code could be integrated directly into `FavouritesViewController`.
 /// It helps us split the code between pure UI and cell dequeuing logic, which can easily become verbose.
 @MainActor
-final class HomeViewDataSource {
-    typealias HomeDataSource = UICollectionViewDiffableDataSource<HomeSection, FavouriteViewDescriptor>
-    typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<HomeSection, FavouriteViewDescriptor>
+final class FavouritesViewDataSource {
+    typealias FavouritesDataSource = UICollectionViewDiffableDataSource<FavouriteSection, FavouriteViewDescriptor>
+    typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<FavouriteSection, FavouriteViewDescriptor>
 
     var content: FavouritesViewContent = .empty {
         didSet {
@@ -23,7 +23,7 @@ final class HomeViewDataSource {
         }
     }
 
-    private weak var presenter: HomePresenter?
+    private weak var presenter: FavouritesPresenter?
     private let collectionView: UICollectionView
 
     private var currentSnapshot: DataSourceSnapshot {
@@ -39,18 +39,18 @@ final class HomeViewDataSource {
 
     private lazy var dataSource = createDataSource(for: collectionView)
 
-    init(collectionView: UICollectionView, presenter: HomePresenter?) {
+    init(collectionView: UICollectionView, presenter: FavouritesPresenter?) {
         self.collectionView = collectionView
         self.presenter = presenter
     }
 
     private func createDataSource(
         for collectionView: UICollectionView
-    ) -> HomeDataSource {
+    ) -> FavouritesDataSource {
         let favouriteRegistration = favouriteCellRegistration()
         let headerRegistration = headerRegistration()
 
-        let dataSource = HomeDataSource(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
+        let dataSource = FavouritesDataSource(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
             return collectionView.dequeueConfiguredReusableCell(
                 using: favouriteRegistration,
                 for: indexPath,
@@ -60,7 +60,7 @@ final class HomeViewDataSource {
 
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             switch kind {
-            case HomeViewLayoutBuilder.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
+            case FavouritesViewLayoutBuilder.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
             default:
                 assert(false, "This supplementary is not handled. Please handle it.")
@@ -74,16 +74,16 @@ final class HomeViewDataSource {
 
 // MARK: - Registrations
 
-extension HomeViewDataSource {
+extension FavouritesViewDataSource {
     private func favouriteCellRegistration() -> UICollectionView.CellRegistration<
         UICollectionViewCell, FavouriteViewDescriptor
     > {
         return UICollectionView.CellRegistration<UICollectionViewCell, FavouriteViewDescriptor> { (cell, _, item) in
             cell.contentConfiguration = UIHostingConfiguration(content: {
-                HomeFavoriteItemView(item: item)
+                FavouriteItemView(item: item)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        HomeFavoriteItemSwipeActionsView(onRemoveFavorite: { [weak self] in
-                            self?.presenter?.removeFavorite(item)
+                        FavouriteItemSwipeActionsView(onRemoveFavourite: { [weak self] in
+                            self?.presenter?.removeFavourite(item)
                         })
                     }
                     .listRowInsets(
@@ -99,7 +99,7 @@ extension HomeViewDataSource {
 
     private func headerRegistration() -> UICollectionView.SupplementaryRegistration<TitleSupplementaryView> {
         return UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(
-            elementKind: HomeViewLayoutBuilder.SupplementaryElementKind.headerElementKind
+            elementKind: FavouritesViewLayoutBuilder.SupplementaryElementKind.headerElementKind
         ) { [weak self] (cell, _, indexPath) in
             guard
                 let self,

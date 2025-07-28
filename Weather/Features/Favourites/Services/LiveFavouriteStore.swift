@@ -13,9 +13,9 @@ import Foundation
 /// but it reflects the kind of scalable and testable architecture I would apply
 /// in a production environment.
 protocol FavouriteStore {
-    func createFavorite(from dto: FavouriteItemDTO) async throws
-    func fetchFavorites() async throws -> [FavouriteItemDTO]
-    func removeFavorite(_ dto: FavouriteItemDTO) async throws
+    func createFavourite(from dto: FavouriteItemDTO) async throws
+    func fetchFavourites() async throws -> [FavouriteItemDTO]
+    func removeFavourite(_ dto: FavouriteItemDTO) async throws
     func loadWeatherData(latitude: Double, longitude: Double) async throws -> APICurrentWeather
 
     func favouritesChangeStream() -> AsyncStream<FavouriteChange>
@@ -48,7 +48,7 @@ final class LiveFavouriteStore: FavouriteStore {
 
     // MARK: CRUD Favourites
 
-    func createFavorite(
+    func createFavourite(
         from dto: FavouriteItemDTO
     ) async throws {
         guard
@@ -73,7 +73,7 @@ final class LiveFavouriteStore: FavouriteStore {
         continuation?.yield(.added(dto))
     }
 
-    func fetchFavorites() async throws -> [FavouriteItemDTO] {
+    func fetchFavourites() async throws -> [FavouriteItemDTO] {
         let fetchRequest = FetchRequest(
             context: WeatherManager.shared.backgroundContext,
             converter: DBFavouriteConverter()
@@ -84,7 +84,7 @@ final class LiveFavouriteStore: FavouriteStore {
         return results
     }
 
-    func removeFavorite(_ dto: FavouriteItemDTO) async throws {
+    func removeFavourite(_ dto: FavouriteItemDTO) async throws {
         try await localRepository.deleteDBFavourite(identifier: dto.identifier)
         continuation?.yield(.removed(dto))
     }

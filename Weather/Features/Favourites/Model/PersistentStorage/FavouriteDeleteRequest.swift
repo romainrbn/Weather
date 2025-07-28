@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class FavouriteDeleteRequest: DeleteRequest<DBFavorite> {
+final class FavouriteDeleteRequest: DeleteRequest<DBFavourite> {
     private let manager: WeatherManager
 
     init(manager: WeatherManager = .shared) {
@@ -17,7 +17,7 @@ final class FavouriteDeleteRequest: DeleteRequest<DBFavorite> {
 
     @discardableResult
     func setFavouriteIdentifier(_ identifier: String) -> Self {
-        let keyPath = #keyPath(DBFavorite.localIdentifier)
+        let keyPath = #keyPath(DBFavourite.localIdentifier)
         let predicate = NSPredicate(format: "%K == %@", keyPath, identifier as CVarArg)
 
         return appendPredicate(predicate)

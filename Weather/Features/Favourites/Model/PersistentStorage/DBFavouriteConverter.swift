@@ -12,7 +12,7 @@ enum DBConverterError: Error {
 }
 
 struct DBFavouriteConverter: DTOConverter {
-    func convert(_ object: DBFavorite) throws -> FavouriteItemDTO {
+    func convert(_ object: DBFavourite) throws -> FavouriteItemDTO {
         guard
             let id = object.localIdentifier,
             let timezoneIdentifier = object.timezoneIdentifier,
