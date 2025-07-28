@@ -8,13 +8,13 @@
 import UIKit
 import MapKit
 
-final class FavouritesViewController: UIViewController, FavouritesViewContract {
+final class FavouritesViewController: UICollectionViewController, FavouritesViewContract {
 
     // MARK: - Properties
 
-    private lazy var collectionView: UICollectionView = createCollectionView()
-    private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
-    private lazy var dataSource: FavouritesViewDataSource = FavouritesViewDataSource(
+//    private lazy var collectionView: UICollectionView = createCollectionView()
+//    private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
+    private(set) lazy var dataSource: FavouritesViewDataSource = FavouritesViewDataSource(
         collectionView: collectionView,
         presenter: presenter
     )
@@ -28,6 +28,11 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView = createCollectionView()
+        collectionView.dragInteractionEnabled = true
+        collectionView.dragDelegate = self
+        collectionView.dropDelegate = self
+        collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
         setup()
         presenter?.loadData()
     }
@@ -43,7 +48,7 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
         if #available(iOS 17.4, *) {
             collectionView.bouncesVertically = hasData
         }
-        
+
         collectionView.refreshControl?.endRefreshing()
     }
 
@@ -74,7 +79,9 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.largeTitleDisplayMode = .always
         title = "Weather"
+
         navigationItem.leftBarButtonItem = createSettingsBarButtonItem()
+        navigationItem.rightBarButtonItem = createEditBarButtonItem()
 
         definesPresentationContext = true
 
@@ -155,11 +162,39 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
         return buttonItem
     }
 
+    private func createEditBarButtonItem() -> UIBarButtonItem {
+        let buttonItem = UIBarButtonItem(
+            barButtonSystemItem: .edit,
+            target: self,
+            action: #selector(didTapToggleEditButton)
+        )
+        buttonItem.accessibilityLabel = "Enter edit mode"
+
+        return buttonItem
+    }
+
+    private func createConfirmChangesBarButtonItem() -> UIBarButtonItem {
+        let buttonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(didTapToggleEditButton)
+        )
+        buttonItem.accessibilityLabel = "Confirm changes"
+
+        return buttonItem
+    }
+
     // MARK: - Selectors
 
     @objc
     private func didTapSettingsButton() {
         presenter?.didTapSettingsButton()
+    }
+
+    @objc
+    private func didTapToggleEditButton() {
+        setEditing(!isEditing, animated: true)
+        navigationItem.rightBarButtonItem = isEditing ? createConfirmChangesBarButtonItem() : createEditBarButtonItem()
     }
 
     @objc
@@ -170,8 +205,8 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
 
 // MARK: - UICollectionViewDelegate
 
-extension FavouritesViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+extension FavouritesViewController {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = dataSource.content.items[indexPath.item]
 
         presenter?.didSelectItem(item)

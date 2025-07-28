@@ -28,10 +28,6 @@ struct FavouriteItemView: View {
             Spacer()
 
             currentConditionsView
-
-            Image(systemName: "chevron.forward")
-                .imageScale(.small)
-                .foregroundStyle(.tertiary)
         }
         .accessibilityLabel(item.accessibilityLabel)
         .accessibilityElement(children: .combine)

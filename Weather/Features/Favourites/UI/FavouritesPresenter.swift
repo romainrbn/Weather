@@ -12,10 +12,12 @@ import MapKit
 final class FavouritesPresenter {
     struct State {
         var favouriteDTOs: [FavouriteItemDTO] = []
+        var currentItems: [FavouriteViewDescriptor] = []
         var searchQuery: String = ""
     }
 
     private let dependencies: FavouriteDependencies
+    private let itemsRefresher: FavouriteWeatherRefresher
     private(set) weak var viewContract: FavouritesViewContract?
 
     private var loadDataTask: Task<Void, Error>?
@@ -29,6 +31,7 @@ final class FavouritesPresenter {
     ) {
         self.dependencies = dependencies
         self.viewContract = viewContract
+        self.itemsRefresher = FavouriteWeatherRefresher(store: dependencies.favouriteStore)
 
         observeFavouritesStream()
     }
@@ -64,23 +67,7 @@ final class FavouritesPresenter {
                     todayTemperaturesRange: nil
                 )
 
-                let weatherData = try await dependencies.favouriteStore.loadWeatherData(
-                    latitude: latitude,
-                    longitude: longitude
-                )
-
-                guard let mainWeather = weatherData.weather.first else { return }
-
-                dto.currentWeather = WeatherReport(
-                    celsiusTemperature: Int(weatherData.mainInfo.temperature.rounded()),
-                    condition: APIWeatherConditionMapping.map(
-                        weatherID: mainWeather.id
-                    )
-                )
-                dto.todayTemperaturesRange = .init(
-                    minimumCelsiusTemperature: Int(weatherData.mainInfo.minTemperature.rounded()),
-                    maximumCelsiusTemperature: Int(weatherData.mainInfo.maxTemperature.rounded())
-                )
+                dto = try await itemsRefresher.refresh(dto)
 
                 try await dependencies.favouriteStore.createFavourite(
                     from: dto
@@ -106,7 +93,9 @@ final class FavouritesPresenter {
 
     @MainActor
     private func updateView() {
-        viewContract?.display(FavouritesViewContentMapper.map(state))
+        let newContent = FavouritesViewContentMapper.map(state)
+        state.currentItems = newContent.items
+        viewContract?.display(newContent)
     }
 
     // MARK: - User Actions
@@ -144,12 +133,44 @@ final class FavouritesPresenter {
         )
     }
 
+    /// Force refresh the data when the user has pulled to refresh
     @MainActor
     func didPullToRefresh() {
-        /// Force refresh the data when the user has pulled to refresh
-        loadData()
+        Task(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
+
+            let freshDTOs = try await itemsRefresher.refresh(state.favouriteDTOs)
+            state.favouriteDTOs = freshDTOs
+
+            await MainActor.run {
+                self.updateView()
+            }
+        }
     }
 
+    @MainActor
+    func reorderFavourites(newOrder: [FavouriteViewDescriptor]) {
+        let identifiers = newOrder.map(\.identifier)
+        let reorderedDTOs = identifiers.compactMap { id in
+            state.favouriteDTOs.first(where: { $0.identifier == id })
+        }
+
+        state.favouriteDTOs = reorderedDTOs
+
+        Task(priority: .utility) { [weak self] in
+            do {
+                try await self?.dependencies.favouriteStore.updateFavouriteSortOrder(identifiersInOrder: identifiers)
+
+                await MainActor.run {
+                    self?.updateView()
+                }
+            } catch {
+                // Fail
+            }
+        }
+    }
+
+    @MainActor
     func removeFavourite(_ item: FavouriteViewDescriptor) {
         guard
             let associatedDTO = state.favouriteDTOs.first(

@@ -17,7 +17,7 @@ struct FavouritesViewLayoutBuilder {
     }
 
     static func favouritesLayoutSection(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .plain)
+        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         listConfiguration.headerMode = .supplementary
         listConfiguration.showsSeparators = false
         listConfiguration.backgroundColor = .systemGroupedBackground
@@ -27,7 +27,6 @@ struct FavouritesViewLayoutBuilder {
         section.interGroupSpacing = .spacing400
 
         let sectionHeader = headerSupplementaryView()
-        sectionHeader.contentInsets = .init(horizontal: .spacing400)
         section.boundarySupplementaryItems = [sectionHeader]
 
         return section

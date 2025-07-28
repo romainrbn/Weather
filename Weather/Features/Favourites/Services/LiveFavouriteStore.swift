@@ -17,6 +17,7 @@ protocol FavouriteStore {
     func fetchFavourites() async throws -> [FavouriteItemDTO]
     func removeFavourite(_ dto: FavouriteItemDTO) async throws
     func loadWeatherData(latitude: Double, longitude: Double) async throws -> APICurrentWeather
+    func updateFavouriteSortOrder(identifiersInOrder: [String]) async throws
 
     func favouritesChangeStream() -> AsyncStream<FavouriteChange>
 }
@@ -74,14 +75,7 @@ final class LiveFavouriteStore: FavouriteStore {
     }
 
     func fetchFavourites() async throws -> [FavouriteItemDTO] {
-        let fetchRequest = FetchRequest(
-            context: WeatherManager.shared.backgroundContext,
-            converter: DBFavouriteConverter()
-        )
-
-        let results = try await fetchRequest.execute()
-
-        return results
+        return try await localRepository.fetchFavourites()
     }
 
     func removeFavourite(_ dto: FavouriteItemDTO) async throws {
@@ -94,5 +88,9 @@ final class LiveFavouriteStore: FavouriteStore {
             latitude: latitude,
             longitude: longitude
         )
+    }
+
+    func updateFavouriteSortOrder(identifiersInOrder: [String]) async throws {
+        try await localRepository.persistFavouriteOrder(identifiersInOrder: identifiersInOrder)
     }
 }

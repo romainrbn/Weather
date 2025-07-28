@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreData
 
 protocol FavouriteLocalRepository {
     func createDBFavourite(
@@ -23,6 +24,14 @@ protocol FavouriteLocalRepository {
     func deleteDBFavourite(
         identifier: String
     ) async throws
+
+    func fetchFavourites() async throws -> [FavouriteItemDTO]
+
+    func persistFavouriteOrder(identifiersInOrder: [String]) async throws
+}
+
+enum FavouriteLocalRepositoryError: Error {
+    case invalidCoreDataModel
 }
 
 struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
@@ -47,6 +56,10 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
         let context = manager.backgroundContext
         try await context.perform {
             let favourite = DBFavourite(context: context)
+            guard let entityName = favourite.entity.name else {
+                throw FavouriteLocalRepositoryError.invalidCoreDataModel
+            }
+
             favourite.localIdentifier = identifier
             favourite.latitude = latitude
             favourite.longitude = longitude
@@ -58,6 +71,19 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
             favourite.temperatureMax = Int16(maxTemperature)
             favourite.condition = Int16(conditionRawValue)
 
+            let request = NSFetchRequest<NSDictionary>(entityName: entityName)
+            request.resultType = .dictionaryResultType
+            request.propertiesToFetch = [#keyPath(DBFavourite.sortOrder)]
+            request.sortDescriptors = [NSSortDescriptor(key: #keyPath(DBFavourite.sortOrder), ascending: false)]
+            request.fetchLimit = 1
+
+            if let result = try context.fetch(request).first,
+               let maxIndex = result[#keyPath(DBFavourite.sortOrder)] as? Int16 {
+                favourite.sortOrder = maxIndex + 1
+            } else {
+                favourite.sortOrder = 0
+            }
+
             try context.save()
         }
     }
@@ -67,5 +93,33 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
             .setFavouriteIdentifier(identifier)
             .setFetchLimit(1)
             .execute()
+    }
+
+    func fetchFavourites() async throws -> [FavouriteItemDTO] {
+        let fetchRequest = FetchRequest(
+            context: WeatherManager.shared.backgroundContext,
+            converter: DBFavouriteConverter()
+        )
+
+        let results = try await fetchRequest.execute()
+
+        return results
+    }
+
+    func persistFavouriteOrder(identifiersInOrder: [String]) async throws {
+        let context = WeatherManager.shared.backgroundContext
+
+        for (index, identifier) in identifiersInOrder.enumerated() {
+           _ = try await FetchRequest(context: context, converter: DBFavouriteConverter())
+                .appendPredicate(NSPredicate(format: "%K == %@", #keyPath(DBFavourite.localIdentifier), identifier))
+                .setFetchLimit(1)
+                .execute { dbObject in
+                    dbObject.sortOrder = Int16(index)
+                }
+        }
+
+        if context.hasChanges {
+            try context.save()
+        }
     }
 }

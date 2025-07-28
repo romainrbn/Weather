@@ -27,6 +27,7 @@ struct DBFavouriteConverter: DTOConverter {
             latitude: object.latitude,
             longitude: object.longitude,
             timezone: timezone,
+            sortOrder: Int(object.sortOrder),
             locationName: locationName,
             currentWeather: createCurrentWeatherObject(
                 temperature: object.temperature,

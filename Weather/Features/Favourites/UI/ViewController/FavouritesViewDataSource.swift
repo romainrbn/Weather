@@ -19,7 +19,7 @@ final class FavouritesViewDataSource {
     var content: FavouritesViewContent = .empty {
         didSet {
             guard content != oldValue else { return }
-            dataSource.apply(currentSnapshot)
+            diffableDataSource.apply(currentSnapshot)
         }
     }
 
@@ -37,7 +37,7 @@ final class FavouritesViewDataSource {
         return snapshot
     }
 
-    private lazy var dataSource = createDataSource(for: collectionView)
+    private(set) lazy var diffableDataSource = createDataSource(for: collectionView)
 
     init(collectionView: UICollectionView, presenter: FavouritesPresenter?) {
         self.collectionView = collectionView
@@ -76,25 +76,35 @@ final class FavouritesViewDataSource {
 
 extension FavouritesViewDataSource {
     private func favouriteCellRegistration() -> UICollectionView.CellRegistration<
-        UICollectionViewCell, FavouriteViewDescriptor
+        UICollectionViewListCell, FavouriteViewDescriptor
     > {
-        return UICollectionView.CellRegistration<UICollectionViewCell, FavouriteViewDescriptor> { (cell, _, item) in
+        return UICollectionView.CellRegistration<UICollectionViewListCell, FavouriteViewDescriptor> { [weak self] (cell, _, item) in
+            guard let self else { return }
             cell.contentConfiguration = UIHostingConfiguration(content: {
-                FavouriteItemView(item: item)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        FavouriteItemSwipeActionsView(onRemoveFavourite: { [weak self] in
-                            self?.presenter?.removeFavourite(item)
-                        })
-                    }
-                    .listRowInsets(
-                        EdgeInsets(
-                            NSDirectionalEdgeInsets(vertical: .spacing400)
-                        )
-                    )
+                self.hostingCellConfiguration(item: item)
             })
-            cell.backgroundColor = .secondarySystemGroupedBackground
-            cell.layer.cornerRadius = .spacing300
+            cell.accessories = [
+                .disclosureIndicator(displayed: .whenNotEditing, options: .init(tintColor: .tertiaryLabel)),
+                .delete(displayed: .whenEditing, actionHandler: {
+                    self.presenter?.removeFavourite(item)
+                }),
+                .reorder(displayed: .whenEditing, options: .init(showsVerticalSeparator: false))
+            ]
         }
+    }
+
+    private func hostingCellConfiguration(item: FavouriteViewDescriptor) -> some View {
+        FavouriteItemView(item: item)
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                FavouriteItemSwipeActionsView(onRemoveFavourite: { [weak self] in
+                    self?.presenter?.removeFavourite(item)
+                })
+            }
+            .listRowInsets(
+                EdgeInsets(
+                    NSDirectionalEdgeInsets(vertical: .spacing400)
+                )
+            )
     }
 
     private func headerRegistration() -> UICollectionView.SupplementaryRegistration<TitleSupplementaryView> {
@@ -103,8 +113,9 @@ extension FavouritesViewDataSource {
         ) { [weak self] (cell, _, indexPath) in
             guard
                 let self,
-                let section = dataSource.sectionIdentifier(for: indexPath.section)
+                let section = diffableDataSource.sectionIdentifier(for: indexPath.section)
             else { return }
+
             cell.content = .init(title: section.title)
         }
     }

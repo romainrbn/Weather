@@ -5,7 +5,7 @@
 //  Created by Romain Rabouan on 7/26/25.
 //
 
-import Foundation
+import UIKit
 
 /// A single creation point for the favourites feature.
 ///
@@ -16,7 +16,7 @@ struct FavouritesModule {
     private var presenter: FavouritesPresenter
 
     init(dependencies: FavouriteDependencies) {
-        viewController = FavouritesViewController()
+        viewController = FavouritesViewController(collectionViewLayout: UICollectionViewFlowLayout())
         presenter = FavouritesPresenter(
             dependencies: dependencies,
             viewContract: viewController
