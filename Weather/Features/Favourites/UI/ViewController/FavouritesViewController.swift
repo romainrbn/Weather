@@ -43,6 +43,8 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
         if #available(iOS 17.4, *) {
             collectionView.bouncesVertically = hasData
         }
+        
+        collectionView.refreshControl?.endRefreshing()
     }
 
     func performCitySearch(_ query: String) {
@@ -105,6 +107,10 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
 
+        let refreshControl = UIRefreshControl(frame: .zero)
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
+
         return collectionView
     }
 
@@ -154,6 +160,11 @@ final class FavouritesViewController: UIViewController, FavouritesViewContract {
     @objc
     private func didTapSettingsButton() {
         presenter?.didTapSettingsButton()
+    }
+
+    @objc
+    private func didPullToRefresh() {
+        presenter?.didPullToRefresh()
     }
 }
 

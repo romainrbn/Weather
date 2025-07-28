@@ -131,6 +131,7 @@ final class FavouritesPresenter {
         viewContract?.present(module.viewController, animated: true)
     }
 
+    @MainActor
     func didTapUseCurrentLocationButton() {
 
     }
@@ -143,6 +144,12 @@ final class FavouritesPresenter {
         )
     }
 
+    @MainActor
+    func didPullToRefresh() {
+        /// Force refresh the data when the user has pulled to refresh
+        loadData()
+    }
+
     func removeFavourite(_ item: FavouriteViewDescriptor) {
         guard
             let associatedDTO = state.favouriteDTOs.first(
@@ -152,9 +159,9 @@ final class FavouritesPresenter {
             return
         }
         
-        Task {
+        Task(priority: .userInitiated) { [weak self] in
             do {
-                try await dependencies.favouriteStore.removeFavourite(associatedDTO)
+                try await self?.dependencies.favouriteStore.removeFavourite(associatedDTO)
             } catch {
                 // Display cannot remove item error
             }
@@ -164,7 +171,8 @@ final class FavouritesPresenter {
     // MARK: - Observation
 
     private func observeFavouritesStream() {
-        favouriteStreamTask = Task {
+        favouriteStreamTask = Task { [weak self] in
+            guard let self else { return }
             for await change in dependencies.favouriteStore.favouritesChangeStream() {
                 switch change {
                 case .added(let dto):
@@ -176,7 +184,7 @@ final class FavouritesPresenter {
                 }
 
                 await MainActor.run {
-                    updateView()
+                    self.updateView()
                 }
             }
         }
