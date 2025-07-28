@@ -12,8 +12,8 @@ final class UserPreferredUnitConverter {
 
     private lazy var formatter: MeasurementFormatter = createMeasurementFormatter()
 
-    func convertToFahrenheit(celciusValue: Double) -> Double {
-        let celsiusMeasurement = Measurement(value: celciusValue, unit: UnitTemperature.celsius)
+    func convertToFahrenheit(celsiusValue: Double) -> Double {
+        let celsiusMeasurement = Measurement(value: celsiusValue, unit: UnitTemperature.celsius)
         let fahrenheitMeasurement = celsiusMeasurement.converted(to: .fahrenheit)
         return fahrenheitMeasurement.value
     }
@@ -24,7 +24,7 @@ final class UserPreferredUnitConverter {
             let measurement = Measurement(value: celsiusTemperatureValue, unit: UnitTemperature.celsius)
             return formatter.string(from: measurement)
         case .fahrenheit:
-            let convertedMeasurement = convertToFahrenheit(celciusValue: celsiusTemperatureValue)
+            let convertedMeasurement = convertToFahrenheit(celsiusValue: celsiusTemperatureValue)
             let measurement = Measurement(value: convertedMeasurement, unit: UnitTemperature.fahrenheit)
             return formatter.string(from: measurement)
         case .systemDefault:
@@ -44,6 +44,7 @@ final class UserPreferredUnitConverter {
         formatter.unitOptions = .providedUnit
         formatter.unitStyle = .medium
         formatter.locale = .current
+        formatter.numberFormatter.maximumFractionDigits = 0
 
         return formatter
     }

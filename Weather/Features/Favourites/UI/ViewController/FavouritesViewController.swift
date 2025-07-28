@@ -12,8 +12,6 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
 
     // MARK: - Properties
 
-//    private lazy var collectionView: UICollectionView = createCollectionView()
-//    private lazy var collectionViewLayout: UICollectionViewCompositionalLayout = createCollectionViewLayout()
     private(set) lazy var dataSource: FavouritesViewDataSource = FavouritesViewDataSource(
         collectionView: collectionView,
         presenter: presenter
@@ -50,6 +48,17 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
         }
 
         collectionView.refreshControl?.endRefreshing()
+    }
+
+    func displayError(errorMessage: String) {
+        let alertController = UIAlertController(
+            title: "Error",
+            message: "An unexpected error occured: \(errorMessage)",
+            preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(title: "OK", style: .cancel))
+
+        present(alertController, animated: true)
     }
 
     func performCitySearch(_ query: String) {
@@ -230,6 +239,7 @@ extension FavouritesViewController: CitySearchResultsControllerDelegate {
         searchController.searchBar.text = ""
         presenter?.state.searchQuery = ""
         searchResultsController.dismiss(animated: true)
+        presenter?.didTapSearchResult(city)
     }
 
     func retryQuery() {

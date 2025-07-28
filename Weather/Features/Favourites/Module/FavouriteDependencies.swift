@@ -16,4 +16,5 @@ struct FavouriteDependencies {
     let citySearchService: WeatherLocalCitySearchService
     let favouriteStore: FavouriteStore
     let forecastStore: ForecastStore
+    let preferencesRepository: UserPreferencesRepository
 }

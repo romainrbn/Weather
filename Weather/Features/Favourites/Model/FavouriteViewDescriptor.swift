@@ -20,12 +20,4 @@ struct FavouriteViewDescriptor: Hashable {
     let primaryColor: Color
     let secondaryColor: Color
     let teriaryColor: Color
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(identifier)
-    }
-
-    static func == (lhs: FavouriteViewDescriptor, rhs: FavouriteViewDescriptor) -> Bool {
-        return lhs.identifier == rhs.identifier
-    }
 }

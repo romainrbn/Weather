@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct UserPreferencesView: View {
-    @State private var selectedUnit: UserPreferredTemperatureUnit = .systemDefault
-
-    @State private var isSavingNewUnit: Bool = false
-
+    @State private var selectedUnit: UserPreferredTemperatureUnit
     @Environment(\.dismiss) var dismiss
+
+    private let userPreferences: UserPreferencesRepository
+
+    init(userPreferences: UserPreferencesRepository) {
+        self.userPreferences = userPreferences
+        self.selectedUnit = userPreferences.preferredTemperatureUnit
+    }
 
     var body: some View {
         NavigationStack {
@@ -33,25 +37,16 @@ struct UserPreferencesView: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    if isSavingNewUnit {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                    } else {
-                        Button("Save") {
-                            isSavingNewUnit = true
-                            defer {
-                                isSavingNewUnit = false
-                            }
-                            print("Save Unit")
-                            dismiss()
-                        }
+                    Button("Save") {
+                        saveUnit()
                     }
                 }
             }
         }
     }
-}
 
-#Preview {
-    UserPreferencesView()
+    private func saveUnit() {
+        userPreferences.preferredTemperatureUnit = selectedUnit
+        dismiss()
+    }
 }

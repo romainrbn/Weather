@@ -18,10 +18,14 @@ final class FavouritesPresenter {
 
     private let dependencies: FavouriteDependencies
     private let itemsRefresher: FavouriteWeatherRefresher
+
+    private let contentMapper: FavouritesViewContentMapper
+
     private(set) weak var viewContract: FavouritesViewContract?
 
     private var loadDataTask: Task<Void, Error>?
     private var favouriteStreamTask: Task<Void, Never>?
+    private var pullToRefreshTask: Task<Void, Never>?
 
     var state = State()
 
@@ -33,6 +37,9 @@ final class FavouritesPresenter {
         self.viewContract = viewContract
         self.itemsRefresher = FavouriteWeatherRefresher(store: dependencies.favouriteStore)
 
+        self.contentMapper = FavouritesViewContentMapper(preferencesRepository: dependencies.preferencesRepository)
+
+        registerToNotifications()
         observeFavouritesStream()
     }
 
@@ -54,30 +61,12 @@ final class FavouritesPresenter {
             guard let self else { return }
 
             do {
-                let latitude = 48.866667
-                let longitude = 2.333333
-
-                var dto = FavouriteItemDTO(
-                    identifier: UUID().uuidString,
-                    latitude: latitude,
-                    longitude: longitude,
-                    timezone: .current,
-                    locationName: "Paris",
-                    currentWeather: nil,
-                    todayTemperaturesRange: nil
-                )
-
-                dto = try await itemsRefresher.refresh(dto)
-
-                try await dependencies.favouriteStore.createFavourite(
-                    from: dto
-                )
-
                 let favourites = try await dependencies.favouriteStore.fetchFavourites()
-
                 state.favouriteDTOs = favourites
             } catch {
-                print("Error!")
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
+                }
             }
 
             await MainActor.run {
@@ -93,7 +82,7 @@ final class FavouritesPresenter {
 
     @MainActor
     private func updateView() {
-        let newContent = FavouritesViewContentMapper.map(state)
+        let newContent = contentMapper.map(state)
         state.currentItems = newContent.items
         viewContract?.display(newContent)
     }
@@ -105,19 +94,7 @@ final class FavouritesPresenter {
         guard let associatedDTO = state.favouriteDTOs.first(where: { $0.identifier == item.identifier }) else {
             return
         }
-        let module = ForecastDetailModule(
-            input: ForecastDetailInput(
-                latitude: associatedDTO.latitude,
-                longitude: associatedDTO.longitude,
-                currentWeather: associatedDTO.currentWeather
-            ),
-            dependencies: ForecastDetailDependencies(
-                favouriteStore: dependencies.favouriteStore,
-                forecastStore: dependencies.forecastStore
-            )
-        )
-
-        viewContract?.present(module.viewController, animated: true)
+        presentForecast(associatedDTO: associatedDTO)
     }
 
     @MainActor
@@ -126,9 +103,44 @@ final class FavouritesPresenter {
     }
 
     @MainActor
+    func didTapSearchResult(_ result: MKMapItem) {
+        guard let timeZone = result.timeZone,
+              let locality = result.placemark.locality
+        else {
+            viewContract?.displayError(errorMessage: "Invalid place. Please try again later")
+            return
+        }
+
+        var dto = FavouriteItemDTO(
+            identifier: UUID().uuidString,
+            latitude: result.placemark.coordinate.latitude,
+            longitude: result.placemark.coordinate.longitude,
+            timezone: timeZone,
+            locationName: locality,
+            currentWeather: nil,
+            todayTemperaturesRange: nil
+        )
+
+        Task(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
+            do {
+                dto = try await itemsRefresher.refresh(dto)
+
+                await MainActor.run {
+                    self.presentForecast(associatedDTO: dto)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
+                }
+            }
+        }
+    }
+
+    @MainActor
     func didTapSettingsButton() {
         viewContract?.present(
-            UIHostingController(rootView: UserPreferencesView()),
+            UIHostingController(rootView: UserPreferencesView(userPreferences: dependencies.preferencesRepository)),
             animated: true
         )
     }
@@ -136,14 +148,23 @@ final class FavouritesPresenter {
     /// Force refresh the data when the user has pulled to refresh
     @MainActor
     func didPullToRefresh() {
-        Task(priority: .userInitiated) { [weak self] in
+        if pullToRefreshTask?.isCancelled == false {
+            pullToRefreshTask?.cancel()
+        }
+        pullToRefreshTask = Task(priority: .userInitiated) { [weak self] in
             guard let self else { return }
 
-            let freshDTOs = try await itemsRefresher.refresh(state.favouriteDTOs)
-            state.favouriteDTOs = freshDTOs
+            do {
+                let freshDTOs = try await itemsRefresher.refresh(state.favouriteDTOs)
+                state.favouriteDTOs = freshDTOs
 
-            await MainActor.run {
-                self.updateView()
+                await MainActor.run {
+                    self.updateView()
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
+                }
             }
         }
     }
@@ -165,7 +186,9 @@ final class FavouritesPresenter {
                     self?.updateView()
                 }
             } catch {
-                // Fail
+                await MainActor.run {
+                    self?.viewContract?.displayError(errorMessage: error.message)
+                }
             }
         }
     }
@@ -184,9 +207,26 @@ final class FavouritesPresenter {
             do {
                 try await self?.dependencies.favouriteStore.removeFavourite(associatedDTO)
             } catch {
-                // Display cannot remove item error
+                await MainActor.run {
+                    self?.viewContract?.displayError(errorMessage: error.message)
+                }
             }
         }
+    }
+
+    @MainActor
+    private func presentForecast(associatedDTO: FavouriteItemDTO) {
+        let module = ForecastDetailModule(
+            input: ForecastDetailInput(
+                associatedItem: associatedDTO
+            ),
+            dependencies: ForecastDetailDependencies(
+                favouriteStore: dependencies.favouriteStore,
+                forecastStore: dependencies.forecastStore
+            )
+        )
+
+        viewContract?.present(module.viewController, animated: true)
     }
 
     // MARK: - Observation
@@ -213,11 +253,18 @@ final class FavouritesPresenter {
 
     // MARK: - Notifications
 
-    private func registerToNetworkChangeNotifications() {
+    private func registerToNotifications() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(applicationDidConnectBackToNetwork),
             name: UIApplication.applicationDidConnectToNetwork,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(preferredUnitDidChange),
+            name: .didReloadUserPreferredUnit,
             object: nil
         )
     }
@@ -228,5 +275,13 @@ final class FavouritesPresenter {
         // let's try to search their query again
         guard state.searchQuery.isEmpty == false else { return }
         viewContract?.performCitySearch(state.searchQuery)
+    }
+
+    @objc
+    private func preferredUnitDidChange() {
+        DispatchQueue.main.async { [weak self] in
+            // Simply remap the existing items in-place.
+            self?.updateView()
+        }
     }
 }

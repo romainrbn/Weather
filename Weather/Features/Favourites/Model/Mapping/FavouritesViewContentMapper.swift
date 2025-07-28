@@ -9,13 +9,22 @@ import SwiftUI
 
 /// Creates the content to display on the favourites view, from the current state of the presenter.
 struct FavouritesViewContentMapper {
-    static func map(_ state: FavouritesPresenter.State) -> FavouritesViewContent {
+
+    private let preferencesRepository: UserPreferencesRepository
+
+    init(preferencesRepository: UserPreferencesRepository) {
+        self.preferencesRepository = preferencesRepository
+    }
+
+    func map(
+        _ state: FavouritesPresenter.State
+    ) -> FavouritesViewContent {
         FavouritesViewContent(
             items: buildFavouriteItems(from: state.favouriteDTOs)
         )
     }
 
-    private static func buildFavouriteItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {
+    private func buildFavouriteItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {
         guard !items.isEmpty else {
             return []
         }
@@ -28,7 +37,7 @@ struct FavouritesViewContentMapper {
         }
     }
 
-    private static func favouriteViewDescriptor(from favouriteItem: FavouriteItemDTO) -> FavouriteViewDescriptor? {
+    private func favouriteViewDescriptor(from favouriteItem: FavouriteItemDTO) -> FavouriteViewDescriptor? {
         guard
             let currentWeather = favouriteItem.currentWeather,
             let temperatureRange = favouriteItem.todayTemperaturesRange
@@ -52,7 +61,7 @@ struct FavouritesViewContentMapper {
         )
     }
 
-    private static func formattedCurrentTime(in timeZone: TimeZone) -> String {
+    private func formattedCurrentTime(in timeZone: TimeZone) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.timeStyle = .short
         dateFormatter.dateStyle = .none
@@ -62,10 +71,10 @@ struct FavouritesViewContentMapper {
         return dateFormatter.string(from: Date())
     }
 
-    private static func formattedTemperature(value: Int) -> String {
+    private func formattedTemperature(value: Int) -> String {
         UserPreferredUnitConverter().formatValue(
             celsiusTemperatureValue: Double(value),
-            unit: .celsius
+            unit: preferencesRepository.preferredTemperatureUnit
         )
     }
 }

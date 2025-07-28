@@ -26,7 +26,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 ),
                 forecastStore: LiveForecastStore(
                     repository: LiveForecastRemoteRepository()
-                )
+                ),
+                preferencesRepository: UserPreferencesRepository()
             )
         )
         self.favouritesModule = favouritesModule
