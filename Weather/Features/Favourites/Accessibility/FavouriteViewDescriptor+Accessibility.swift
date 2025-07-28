@@ -11,7 +11,8 @@ extension FavouriteViewDescriptor {
     // In a production context, we would use a LocalizedString here to provide VoiceOver content in different languages.
     var accessibilityLabel: String {
         """
-        It's currently \(currentWeather). Today's high will be \(maximumTemperature) and the low will be \(minimumTemperature).
+        It's currently \(formattedCurrentConditions) and it's \(formattedCurrentConditions).
+        Today's high will be \(maximumTemperature) and the low will be \(minimumTemperature).
         """
     }
 }

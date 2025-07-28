@@ -210,6 +210,7 @@ extension FavouritesViewController {
         let item = dataSource.content.items[indexPath.item]
 
         presenter?.didSelectItem(item)
+        collectionView.deselectItem(at: indexPath, animated: true)
     }
 }
 

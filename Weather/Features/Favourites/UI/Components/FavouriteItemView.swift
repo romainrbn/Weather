@@ -57,8 +57,13 @@ struct FavouriteItemView: View {
 
     private var currentConditionsView: some View {
         VStack(alignment: .center, spacing: .spacing200) {
-            Text(item.currentWeather)
+            Text(item.formattedCurrentTemperature)
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
+
+            Text(item.formattedCurrentConditions)
+                .font(.subheadline)
+                .bold()
+                .foregroundStyle(.secondary)
 
             HStack(spacing: .spacing200) {
                 HStack(spacing: .spacing50) {

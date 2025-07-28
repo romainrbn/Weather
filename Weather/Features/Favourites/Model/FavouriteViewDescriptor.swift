@@ -12,7 +12,8 @@ struct FavouriteViewDescriptor: Hashable {
     let locationName: String
     let isCurrentLocation: Bool
     let localFormattedTime: String
-    let currentWeather: String
+    let formattedCurrentTemperature: String
+    let formattedCurrentConditions: String
     let currentConditionsSymbolName: String
     let minimumTemperature: String
     let maximumTemperature: String

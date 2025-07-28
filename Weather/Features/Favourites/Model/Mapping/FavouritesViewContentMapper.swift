@@ -41,7 +41,8 @@ struct FavouritesViewContentMapper {
             locationName: favouriteItem.locationName,
             isCurrentLocation: false,
             localFormattedTime: formattedCurrentTime(in: favouriteItem.timezone),
-            currentWeather: formattedTemperature(value: currentWeather.celsiusTemperature),
+            formattedCurrentTemperature: formattedTemperature(value: currentWeather.celsiusTemperature),
+            formattedCurrentConditions: currentWeather.condition.name,
             currentConditionsSymbolName: currentWeather.condition.associatedSystemSymbolName,
             minimumTemperature: formattedTemperature(value: temperatureRange.minimumCelsiusTemperature),
             maximumTemperature: formattedTemperature(value: temperatureRange.maximumCelsiusTemperature),
@@ -72,17 +73,20 @@ struct FavouritesViewContentMapper {
 extension WeatherCondition {
     // Allows us to switch only once on all conditions
     private struct Model {
+        let name: String
         let associatedSystemSymbolName: String
         let primaryColor: Color
         let secondaryColor: Color?
         let teriaryColor: Color?
 
         init(
+            name: String,
             associatedSystemSymbolName: String,
             primaryColor: Color,
             secondaryColor: Color? = nil,
             teriaryColor: Color? = nil
         ) {
+            self.name = name
             self.associatedSystemSymbolName = associatedSystemSymbolName
             self.primaryColor = primaryColor
             self.secondaryColor = secondaryColor
@@ -93,22 +97,26 @@ extension WeatherCondition {
     private var model: Model {
         switch self {
         case .clear:
-            Model(associatedSystemSymbolName: "sun.max.fill", primaryColor: .yellow)
+            Model(name: "Clear", associatedSystemSymbolName: "sun.max.fill", primaryColor: .yellow)
         case .clouds:
-            Model(associatedSystemSymbolName: "cloud.fill", primaryColor: .gray)
+            Model(name: "Cloudy", associatedSystemSymbolName: "cloud.fill", primaryColor: .gray)
         case .thunderstorm:
-            Model(associatedSystemSymbolName: "cloud.bolt.fill", primaryColor: .gray, secondaryColor: .yellow)
+            Model(name: "Stormy", associatedSystemSymbolName: "cloud.bolt.fill", primaryColor: .gray, secondaryColor: .yellow)
         case .drizzle:
-            Model(associatedSystemSymbolName: "cloud.drizzle.fill", primaryColor: .gray, secondaryColor: .blue)
+            Model(name: "Drizzly", associatedSystemSymbolName: "cloud.drizzle.fill", primaryColor: .gray, secondaryColor: .blue)
         case .rain:
-            Model(associatedSystemSymbolName: "cloud.rain.fill", primaryColor: .gray, secondaryColor: .blue)
+            Model(name: "Rainy", associatedSystemSymbolName: "cloud.rain.fill", primaryColor: .gray, secondaryColor: .blue)
         case .snow:
-            Model(associatedSystemSymbolName: "cloud.snow.fill", primaryColor: .gray, secondaryColor: .blue)
+            Model(name: "Snowy", associatedSystemSymbolName: "cloud.snow.fill", primaryColor: .gray, secondaryColor: .blue)
         case .atmosphere:
-            Model(associatedSystemSymbolName: "sun.dust.fill", primaryColor: .orange, secondaryColor: .yellow)
+            Model(name: "Foggy", associatedSystemSymbolName: "sun.dust.fill", primaryColor: .orange, secondaryColor: .yellow) // TODO: map more
         case .unknown:
-            Model(associatedSystemSymbolName: "cloud.sun.rain.fill", primaryColor: .gray, secondaryColor: .yellow, teriaryColor: .blue)
+            Model(name: "Unknown Weather", associatedSystemSymbolName: "cloud.sun.rain.fill", primaryColor: .gray, secondaryColor: .yellow, teriaryColor: .blue)
         }
+    }
+
+    var name: String {
+        model.name
     }
 
     var associatedSystemSymbolName: String {
