@@ -7,11 +7,6 @@
 
 import Foundation
 
-private enum RouterConstants {
-    static let retryDelay: TimeInterval = 2
-    static let retryAttemptsCount = 1
-}
-
 protocol Router {
     var session: RouterSession { get }
 
