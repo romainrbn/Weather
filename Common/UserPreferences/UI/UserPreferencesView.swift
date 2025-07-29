@@ -12,10 +12,12 @@ struct UserPreferencesView: View {
     @Environment(\.dismiss) var dismiss
 
     private let userPreferences: UserPreferencesRepository
+    private let initialUnit: UserPreferredTemperatureUnit
 
     init(userPreferences: UserPreferencesRepository) {
         self.userPreferences = userPreferences
         self.selectedUnit = userPreferences.preferredTemperatureUnit
+        self.initialUnit = userPreferences.preferredTemperatureUnit
     }
 
     var body: some View {
@@ -40,6 +42,7 @@ struct UserPreferencesView: View {
                     Button("Save") {
                         saveUnit()
                     }
+                    .disabled(selectedUnit == initialUnit)
                 }
             }
         }

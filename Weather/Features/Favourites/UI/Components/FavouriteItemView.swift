@@ -9,6 +9,7 @@ import SwiftUI
 
 private enum Constants {
     static let currentConditionsSymbolFrame: CGFloat = 48
+    static let temperatureLabelMinimulScaleFactor: CGFloat = 0.8
 }
 
 struct FavouriteItemView: View {
@@ -59,6 +60,7 @@ struct FavouriteItemView: View {
         VStack(alignment: .center, spacing: .spacing200) {
             Text(item.formattedCurrentTemperature)
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                .minimumScaleFactor(Constants.temperatureLabelMinimulScaleFactor)
 
             Text(item.formattedCurrentConditions)
                 .lineLimit(nil)
