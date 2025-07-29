@@ -61,9 +61,13 @@ struct FavouriteItemView: View {
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
 
             Text(item.formattedCurrentConditions)
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
                 .font(.subheadline)
                 .bold()
                 .foregroundStyle(.secondary)
+                .padding(.bottom)
+                .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: .spacing200) {
                 HStack(spacing: .spacing50) {

@@ -17,7 +17,8 @@ struct DBFavouriteConverter: DTOConverter {
             let id = object.localIdentifier,
             let timezoneIdentifier = object.timezoneIdentifier,
             let timezone = TimeZone(identifier: timezoneIdentifier),
-            let locationName = object.locationName
+            let locationName = object.locationName,
+            let conditionName = object.conditionName
         else {
             throw DBConverterError.missingMandatoryData
         }
@@ -31,7 +32,8 @@ struct DBFavouriteConverter: DTOConverter {
             locationName: locationName,
             currentWeather: createCurrentWeatherObject(
                 temperature: object.temperature,
-                rawCondition: object.condition
+                rawCondition: object.condition,
+                conditionName: conditionName
             ),
             todayTemperaturesRange: CurrentDayTemperatureRange(
                 minimumCelsiusTemperature: Int(object.temperatureMin),
@@ -42,7 +44,8 @@ struct DBFavouriteConverter: DTOConverter {
 
     private func createCurrentWeatherObject(
         temperature: Int16,
-        rawCondition: Int16
+        rawCondition: Int16,
+        conditionName: String
     ) -> WeatherReport? {
         guard let condition = WeatherCondition(rawValue: Int(rawCondition)) else {
             return nil
@@ -50,7 +53,8 @@ struct DBFavouriteConverter: DTOConverter {
 
         return WeatherReport(
             celsiusTemperature: Int(temperature),
-            condition: condition
+            condition: condition,
+            conditionName: conditionName
         )
     }
 }

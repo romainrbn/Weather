@@ -26,7 +26,7 @@ protocol ForecastStore {
     func loadForecast(
         latitude: Double,
         longitude: Double,
-        currentWeather: WeatherReport?
+        currentWeather: WeatherReport
     ) async throws -> ForecastDTO
 }
 
@@ -41,22 +41,12 @@ struct LiveForecastStore: ForecastStore {
     func loadForecast(
         latitude: Double,
         longitude: Double,
-        currentWeather: WeatherReport?
+        currentWeather: WeatherReport
     ) async throws -> ForecastDTO {
         let apiModel = try await repository.loadForecast(latitude: latitude, longitude: longitude)
-        let weather: WeatherReport
-        if let currentWeather {
-            weather = currentWeather
-        } else {
-            weather = try await loadCurrentWeather(latitude, longitude)
-        }
         return WSForecastConverter.convert(
-            currentWeather: weather,
+            currentWeather: currentWeather,
             wsForecast: apiModel
         )
-    }
-
-    private func loadCurrentWeather(_ latitude: Double, _ longitude: Double) async throws -> WeatherReport {
-        WeatherReport(celsiusTemperature: 25, condition: .rain)
     }
 }

@@ -10,4 +10,5 @@ import Foundation
 struct WeatherReport: Hashable {
     let celsiusTemperature: Int
     let condition: WeatherCondition
+    let conditionName: String
 }

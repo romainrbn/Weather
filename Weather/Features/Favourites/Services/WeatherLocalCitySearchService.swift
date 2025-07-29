@@ -12,14 +12,14 @@ typealias WeatherLocalCitySearchResult = Result<[MKMapItem], WeatherLocalCitySea
 
 enum WeatherLocalCitySearchServiceError: Error, LocalizedError {
     case networkError
-    case mapKitError(_ wrappedError: any Error)
+    case mapKitError(_ underlyingError: any Error)
 
     var errorDescription: String? {
         switch self {
         case .networkError:
             return "Network Error"
-        case .mapKitError(let wrappedError):
-            return wrappedError.localizedDescription
+        case .mapKitError(let underlyingError):
+            return underlyingError.localizedDescription
         }
     }
 }

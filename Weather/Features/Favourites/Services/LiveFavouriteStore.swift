@@ -68,6 +68,7 @@ final class LiveFavouriteStore: FavouriteStore {
             maxTemperature: temperaturesRanges.maximumCelsiusTemperature,
             minTemperature: temperaturesRanges.minimumCelsiusTemperature,
             conditionRawValue: currentWeather.condition.rawValue,
+            conditionName: currentWeather.conditionName,
             timeZone: dto.timezone
         )
 

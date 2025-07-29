@@ -11,6 +11,10 @@ private enum Constants {
     static let errorImageSize: CGFloat = 40
 }
 
+/// Using a UIKit view here to avoid unnecessary architectural complexity.
+/// Reacting to error state changes via SwiftUI would require a bridging mechanism,
+/// such as a reference type view model with a `@Published` property, to communicate with UIKit.
+/// For this case, directly exposing a `setError(_:)` method is simpler and sufficient.
 final class CitySearchErrorView: UIView {
 
     private let imageView: UIImageView = {

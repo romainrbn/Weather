@@ -21,11 +21,16 @@ final class ForecastDetailViewModel: ObservableObject {
     }
 
     func loadData() async {
+        guard let currentWeather = input.associatedItem.currentWeather else {
+            // Display an alert to the user
+            Log.log("The current weather should have already been loaded at this point.")
+            return
+        }
         do {
             let loadedForecast = try await dependencies.forecastStore.loadForecast(
                 latitude: input.associatedItem.latitude,
                 longitude: input.associatedItem.longitude,
-                currentWeather: input.associatedItem.currentWeather
+                currentWeather: currentWeather
             )
             await MainActor.run {
                 self.forecast = loadedForecast

@@ -18,6 +18,7 @@ protocol FavouriteLocalRepository {
         maxTemperature: Int,
         minTemperature: Int,
         conditionRawValue: Int,
+        conditionName: String,
         timeZone: TimeZone
     ) async throws
 
@@ -51,6 +52,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
         maxTemperature: Int,
         minTemperature: Int,
         conditionRawValue: Int,
+        conditionName: String,
         timeZone: TimeZone
     ) async throws {
         let context = manager.backgroundContext
@@ -70,6 +72,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
             favourite.temperatureMin = Int16(minTemperature)
             favourite.temperatureMax = Int16(maxTemperature)
             favourite.condition = Int16(conditionRawValue)
+            favourite.conditionName = conditionName
 
             let request = NSFetchRequest<NSDictionary>(entityName: entityName)
             request.resultType = .dictionaryResultType
@@ -100,6 +103,7 @@ struct LiveFavouriteLocalRepository: FavouriteLocalRepository {
             context: WeatherManager.shared.backgroundContext,
             converter: DBFavouriteConverter()
         )
+        .setSortDescriptor(NSSortDescriptor(key: #keyPath(DBFavourite.sortOrder), ascending: true))
 
         let results = try await fetchRequest.execute()
 

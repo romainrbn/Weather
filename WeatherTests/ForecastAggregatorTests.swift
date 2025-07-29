@@ -32,7 +32,8 @@ struct ForecastAggregatorTests {
 
         let expectedReport = WeatherReport(
             celsiusTemperature: Int(temperature.rounded()),
-            condition: .clear
+            condition: .clear,
+            conditionName: "Clear"
         )
 
         #expect(result.hourly[0].report == expectedReport)
@@ -57,7 +58,11 @@ struct ForecastAggregatorTests {
         #expect(result.daily.count == 1)
 
         let expectedTemp = Int(((baseTemp1 + baseTemp2) / 2.0).rounded())
-        let expectedReport = WeatherReport(celsiusTemperature: expectedTemp, condition: .thunderstorm)
+        let expectedReport = WeatherReport(
+            celsiusTemperature: expectedTemp,
+            condition: .thunderstorm,
+            conditionName: "Storms"
+        )
 
         #expect(result.daily[0].report == expectedReport)
     }

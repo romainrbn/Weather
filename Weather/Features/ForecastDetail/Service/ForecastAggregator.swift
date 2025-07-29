@@ -23,23 +23,25 @@ private struct DailyAccumulator {
     private var sumTemperature: Double = 0
     private var count: Int = 0
     private(set) var worstCondition: WeatherCondition = .unknown
+    private(set) var worstConditionName: String? = nil
 
     var report: WeatherReport {
         let averageTemperature = count > 0 ? Int((sumTemperature / Double(count)).rounded()) : 0
-        return WeatherReport(celsiusTemperature: averageTemperature, condition: worstCondition)
+        return WeatherReport(celsiusTemperature: averageTemperature, condition: worstCondition, conditionName: worstConditionName ?? "-")
     }
 
     mutating func add(snapshot: APIWeatherSnapshot) {
-        guard let weatherID = snapshot.weather.first?.id else {
+        guard let mainWeather = snapshot.weather.first else {
             Log.log("Tried to map a snapshot without a weather conditionID.")
             return
         }
         sumTemperature += snapshot.main.temperature
         count += 1
 
-        let condition = APIWeatherConditionMapping.map(weatherID: weatherID)
+        let condition = APIWeatherConditionMapping.map(weatherID: mainWeather.id)
         if condition.priority > worstCondition.priority {
             worstCondition = condition
+            worstConditionName = mainWeather.description
         }
     }
 }
@@ -68,14 +70,14 @@ struct ForecastAggregator {
         from snapshots: [APIWeatherSnapshot]
     ) -> [HourlyForecast] {
         return snapshots.compactMap { snapshot in
-            guard let weatherID = snapshot.weather.first?.id else {
+            guard let mainWeather = snapshot.weather.first else {
                 return nil
             }
 
             let time = Date(timeIntervalSince1970: snapshot.timestamp)
             let tempC = Int(snapshot.main.temperature.rounded())
-            let condition = APIWeatherConditionMapping.map(weatherID: weatherID)
-            let report = WeatherReport(celsiusTemperature: tempC, condition: condition)
+            let condition = APIWeatherConditionMapping.map(weatherID: mainWeather.id)
+            let report = WeatherReport(celsiusTemperature: tempC, condition: condition, conditionName: mainWeather.description)
 
             return HourlyForecast(time: time, report: report)
         }

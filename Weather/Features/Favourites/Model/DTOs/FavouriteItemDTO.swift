@@ -44,7 +44,8 @@ extension FavouriteItemDTO {
 
         self.currentWeather = WeatherReport(
             celsiusTemperature: Int(weatherData.mainInfo.temperature.rounded()),
-            condition: APIWeatherConditionMapping.map(weatherID: mainWeather.id)
+            condition: APIWeatherConditionMapping.map(weatherID: mainWeather.id),
+            conditionName: mainWeather.description
         )
 
         self.todayTemperaturesRange = CurrentDayTemperatureRange(
