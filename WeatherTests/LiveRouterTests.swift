@@ -15,7 +15,7 @@ struct LiveRouterTests {
     private let url: URL
 
     init() throws {
-        self.url = try #require(try URL(string: "https://api.openweathermap.org"))
+        self.url = try #require(URL(string: "https://api.openweathermap.org"))
     }
 
     @Test("Successfully decode valid JSON response")
