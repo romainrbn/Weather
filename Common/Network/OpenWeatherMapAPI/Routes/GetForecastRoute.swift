@@ -13,7 +13,7 @@ struct GetForecastRoute: Route {
     var queryParams: [String : String] = [
         "lat": "47.38502545",
         "lon": "-0.4719574443962181",
-        "appid": "4aa698cc2572f540f79280272d0461c6",
+        "appid": Secret.apiKey,
         "units": "metric",
         "lang": "fr",
     ]

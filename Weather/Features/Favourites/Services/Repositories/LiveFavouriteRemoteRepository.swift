@@ -25,7 +25,7 @@ struct LiveFavouriteRemoteRepository: FavouriteRemoteRepository {
         let route = CurrentWeatherRoute(inputParameters: [
             "lat": "\(latitude)",
             "lon": "\(longitude)",
-            "appid": "4aa698cc2572f540f79280272d0461c6",
+            "appid": Secret.apiKey,
             "units": "metric"
         ])
         return try await router.performRequest(route)
