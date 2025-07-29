@@ -68,8 +68,8 @@ final class CitySearchErrorView: UIView {
         backgroundColor = .systemBackground
 
         addSubview(stackView)
-        stackView.center(within: self)
-        stackView.fitHorizontallyWithinParent(self, offset: .spacing400)
+        stackView.center(in: self)
+        stackView.constrainHorizontally(to: self, offset: .spacing400)
 
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: Constants.errorImageSize),

@@ -54,7 +54,9 @@ struct ForecastDetailView: View {
 
     @ViewBuilder
     private func loadedForecastView(_ forecast: ForecastDTO) -> some View {
-        Text("Forecasr")
+        ScrollView(.vertical) {
+            Text("\(forecast)")
+        }
     }
 
     @ViewBuilder

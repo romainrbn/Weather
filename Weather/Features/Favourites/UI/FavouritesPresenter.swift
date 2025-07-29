@@ -9,11 +9,19 @@ import UIKit
 import SwiftUI
 import MapKit
 
+private enum Constants {
+    static let minimumTimeBetweenSessionsToRefreshData: TimeInterval = 2 * 60 // 2 minutes
+    static let lastUpdateUserDefaultKey: String = "lastUpdate"
+}
+
 final class FavouritesPresenter {
     struct State {
         var favouriteDTOs: [FavouriteItemDTO] = []
         var currentItems: [FavouriteViewDescriptor] = []
         var searchQuery: String = ""
+
+        @UserDefault(Constants.lastUpdateUserDefaultKey, defaultValue: Date.now)
+        var lastUpdate: Date
     }
 
     private let dependencies: FavouriteDependencies
@@ -25,7 +33,7 @@ final class FavouritesPresenter {
 
     private var loadDataTask: Task<Void, Error>?
     private var favouriteStreamTask: Task<Void, Never>?
-    private var pullToRefreshTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
 
     var state = State()
 
@@ -47,7 +55,7 @@ final class FavouritesPresenter {
         NotificationCenter.default.removeObserver(self)
         favouriteStreamTask?.cancel()
         loadDataTask?.cancel()
-        pullToRefreshTask?.cancel()
+        refreshTask?.cancel()
     }
 
     /// Starts the fetching of all the data, and displays it!
@@ -72,6 +80,28 @@ final class FavouritesPresenter {
 
             await MainActor.run {
                 self.updateView()
+            }
+        }
+    }
+
+    private func refreshData() {
+        if refreshTask?.isCancelled == false {
+            refreshTask?.cancel()
+        }
+        refreshTask = Task(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
+            do {
+                let freshDTOs = try await itemsRefresher.refresh(state.favouriteDTOs)
+                state.lastUpdate = .now
+                state.favouriteDTOs = freshDTOs
+
+                await MainActor.run {
+                    self.updateView()
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
+                }
             }
         }
     }
@@ -132,9 +162,11 @@ final class FavouritesPresenter {
             guard let self else { return }
             do {
                 dto = try await itemsRefresher.refresh(dto)
+                state.lastUpdate = .now
 
                 await MainActor.run {
                     self.presentForecast(associatedDTO: dto)
+                    self.updateView()
                 }
             } catch {
                 await MainActor.run {
@@ -155,25 +187,7 @@ final class FavouritesPresenter {
     /// Force refresh the data when the user has pulled to refresh
     @MainActor
     func didPullToRefresh() {
-        if pullToRefreshTask?.isCancelled == false {
-            pullToRefreshTask?.cancel()
-        }
-        pullToRefreshTask = Task(priority: .userInitiated) { [weak self] in
-            guard let self else { return }
-
-            do {
-                let freshDTOs = try await itemsRefresher.refresh(state.favouriteDTOs)
-                state.favouriteDTOs = freshDTOs
-
-                await MainActor.run {
-                    self.updateView()
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewContract?.displayError(errorMessage: error.message)
-                }
-            }
-        }
+        refreshData()
     }
 
     @MainActor
@@ -276,6 +290,13 @@ final class FavouritesPresenter {
             name: .didReloadUserPreferredUnit,
             object: nil
         )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshDataOnEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
     }
 
     @objc
@@ -292,5 +313,17 @@ final class FavouritesPresenter {
             // Simply remap the existing items in-place.
             self?.updateView()
         }
+    }
+
+    @objc
+    @MainActor
+    private func refreshDataOnEnterForeground() {
+        guard Date.now.timeIntervalSince(state.lastUpdate) > Constants.minimumTimeBetweenSessionsToRefreshData else {
+            // Avoid making too many API requests if the user exits/comes back to the app often
+            updateView()
+            return
+        }
+
+        refreshData()
     }
 }

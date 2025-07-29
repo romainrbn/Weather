@@ -19,7 +19,11 @@ final class FavouritesViewDataSource {
     var content: FavouritesViewContent = .empty {
         didSet {
             guard content != oldValue else { return }
-            diffableDataSource.apply(currentSnapshot)
+            var snapshot = currentSnapshot
+            if content.formattedLastUpdate != oldValue.formattedLastUpdate {
+                snapshot.reloadSections([.favourites])
+            }
+            diffableDataSource.apply(snapshot)
         }
     }
 
@@ -33,7 +37,7 @@ final class FavouritesViewDataSource {
             snapshot.appendSections([.favourites])
             snapshot.appendItems(content.items, toSection: .favourites)
         }
-        
+
         return snapshot
     }
 
@@ -116,7 +120,7 @@ extension FavouritesViewDataSource {
                 let section = diffableDataSource.sectionIdentifier(for: indexPath.section)
             else { return }
 
-            cell.content = .init(title: section.title)
+            cell.content = .init(title: section.title, subtitle: content.formattedLastUpdate)
         }
     }
 }

@@ -30,7 +30,7 @@ final class HostingView<RootView: View>: UIView {
     private func setupHostingController() {
         hostingController.view.backgroundColor = .clear
         addSubview(hostingController.view)
-        hostingController.view.fitWithinParent(self)
+        hostingController.view.constrainEdges(to: self)
     }
 
     // MARK: - Lifecycle

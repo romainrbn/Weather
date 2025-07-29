@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+private enum Constants {
+    static let secondsInAMinute: TimeInterval = 60
+}
+
 /// Creates the content to display on the favourites view, from the current state of the presenter.
 struct FavouritesViewContentMapper {
 
@@ -20,8 +24,27 @@ struct FavouritesViewContentMapper {
         _ state: FavouritesPresenter.State
     ) -> FavouritesViewContent {
         FavouritesViewContent(
-            items: buildFavouriteItems(from: state.favouriteDTOs)
+            items: buildFavouriteItems(from: state.favouriteDTOs),
+            formattedLastUpdate: Self.formatLastUpdateDate(state.lastUpdate)
         )
+    }
+
+    static func formatLastUpdateDate(_ date: Date) -> String {
+        let timeDifference = Date.now.timeIntervalSince(date)
+        let prefix: String = "Last update:"
+        if timeDifference < 5 {
+            return "\(prefix) Now"
+        }
+
+        if timeDifference < Constants.secondsInAMinute {
+            return "\(prefix) A few moments ago"
+        }
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        let localizedFormattedString = formatter.localizedString(for: date, relativeTo: Date.now)
+
+        return "\(prefix) \(localizedFormattedString)"
     }
 
     private func buildFavouriteItems(from items: [FavouriteItemDTO]) -> [FavouriteViewDescriptor] {

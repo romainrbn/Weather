@@ -41,7 +41,10 @@ extension FavouritesViewController: UICollectionViewDragDelegate, UICollectionVi
         currentItems.remove(at: sourceIndexPath.item)
         currentItems.insert(draggedItem, at: destinationIndexPath.item)
 
-        dataSource.content = FavouritesViewContent(items: currentItems)
+        dataSource.content = FavouritesViewContent(
+            items: currentItems,
+            formattedLastUpdate: FavouritesViewContentMapper.formatLastUpdateDate(presenter.state.lastUpdate)
+        )
 
         coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)
         presenter.reorderFavourites(newOrder: currentItems)

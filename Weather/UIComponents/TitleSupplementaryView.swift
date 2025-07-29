@@ -21,7 +21,25 @@ final class TitleSupplementaryView: UICollectionReusableView {
         }
     }
 
-    private lazy var titleLabel = createTitleLabel()
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = .spacing100
+        return stackView
+    }()
+
+    private let titleLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = .systemFont(ofSize: Constants.titleFontSize, weight: .semibold)
+        return label
+    }()
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = .preferredFont(forTextStyle: .headline)
+        label.textColor = .secondaryLabel
+        return label
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -41,30 +59,26 @@ final class TitleSupplementaryView: UICollectionReusableView {
     }
 
     private func buildViewHierarchy() {
-        addSubview(titleLabel)
+        addSubview(stackView)
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(subtitleLabel)
     }
 
     private func setConstraints() {
-        titleLabel.fitWithinParent(self)
-    }
-
-    // MARK: - Subviews
-
-    private func createTitleLabel() -> UILabel {
-        let label = UILabel(frame: .zero)
-        label.font = .systemFont(ofSize: Constants.titleFontSize, weight: .semibold)
-        return label
+        stackView.constrainEdges(to: self)
     }
 }
 
 extension TitleSupplementaryView {
     struct Content: Equatable {
         let title: String
+        let subtitle: String
 
-        static let empty = Content(title: "")
+        static let empty = Content(title: "", subtitle: "")
     }
 
     func setContent(_ content: Content) {
         titleLabel.text = content.title
+        subtitleLabel.text = content.subtitle
     }
 }

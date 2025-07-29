@@ -113,7 +113,7 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     }
 
     private func setConstraints() {
-        collectionView.fitWithinParent(view)
+        collectionView.constrainEdges(to: view)
     }
 
     // MARK: Content creation
@@ -166,8 +166,8 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
 
     private func setupEmptyBackgroundView() {
         view.addSubview(emptyStateView)
-        emptyStateView.fitHorizontallyWithinParent(view)
-        emptyStateView.center(within: view)
+        emptyStateView.constrainEdges(to: view)
+        emptyStateView.center(in: view)
     }
 
     private func createSettingsBarButtonItem() -> UIBarButtonItem {

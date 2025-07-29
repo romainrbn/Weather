@@ -9,6 +9,7 @@ import Foundation
 
 struct FavouritesViewContent: Equatable {
     let items: [FavouriteViewDescriptor]
+    let formattedLastUpdate: String
 
-    static let empty = FavouritesViewContent(items: [])
+    static let empty = FavouritesViewContent(items: [], formattedLastUpdate: "")
 }

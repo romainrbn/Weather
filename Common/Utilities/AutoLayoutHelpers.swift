@@ -9,29 +9,36 @@ import UIKit
 
 /// A small helper extension to build NSLayoutConstraints faster and avoid massive view controllers...
 extension UIView {
-    func fitWithinParent(_ parent: UIView, verticalOffset: CGFloat = 0, horizontalOffset: CGFloat = 0) {
-        translatesAutoresizingMaskIntoConstraints = false
+    /// Pins all edges of the view to its parent with optional offsets
+    func constrainEdges(to parent: UIView, verticalOffset: CGFloat = 0, horizontalOffset: CGFloat = 0) {
+        prepareForConstraints()
         NSLayoutConstraint.activate([
             topAnchor.constraint(equalTo: parent.topAnchor, constant: verticalOffset),
             bottomAnchor.constraint(equalTo: parent.bottomAnchor, constant: -verticalOffset),
-            trailingAnchor.constraint(equalTo: parent.trailingAnchor, constant: -horizontalOffset),
             leadingAnchor.constraint(equalTo: parent.leadingAnchor, constant: horizontalOffset),
+            trailingAnchor.constraint(equalTo: parent.trailingAnchor, constant: -horizontalOffset)
         ])
     }
 
-    func fitHorizontallyWithinParent(_ parent: UIView, offset: CGFloat = 0) {
-        translatesAutoresizingMaskIntoConstraints = false
+    /// Pins the horizontal edges to the parent
+    func constrainHorizontally(to parent: UIView, offset: CGFloat = 0) {
+        prepareForConstraints()
         NSLayoutConstraint.activate([
-            trailingAnchor.constraint(equalTo: parent.trailingAnchor, constant: -offset),
             leadingAnchor.constraint(equalTo: parent.leadingAnchor, constant: offset),
+            trailingAnchor.constraint(equalTo: parent.trailingAnchor, constant: -offset)
         ])
     }
 
-    func center(within parent: UIView) {
-        translatesAutoresizingMaskIntoConstraints = false
+    /// Centers the view inside a parent view
+    func center(in parent: UIView) {
+        prepareForConstraints()
         NSLayoutConstraint.activate([
             centerXAnchor.constraint(equalTo: parent.centerXAnchor),
-            centerYAnchor.constraint(equalTo: parent.centerYAnchor),
+            centerYAnchor.constraint(equalTo: parent.centerYAnchor)
         ])
+    }
+
+    private func prepareForConstraints() {
+        translatesAutoresizingMaskIntoConstraints = false
     }
 }
