@@ -9,6 +9,7 @@ import SwiftUI
 
 private enum Constants {
     static let currentTemperatureFontSize: CGFloat = 40
+    static let dividerHeight: CGFloat = 80
 
     static let currentConditionImageSize: CGFloat = 120
     static let hourlyForecastConditionImageSize: CGFloat = 40
@@ -122,7 +123,7 @@ struct LoadedForecastView: View {
                                 .padding(.bottom, .spacing100)
 
                             Divider()
-                                .frame(width: 1, height: Constants.hourlyForecastConditionImageSize)
+                                .frame(width: 1, height: Constants.dividerHeight)
                                 .background(Color.secondary)
                         }
                         .accessibilityLabel(group.accessibilityTitle)
