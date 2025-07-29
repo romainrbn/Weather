@@ -106,7 +106,8 @@ final class FavouritesPresenter {
     @MainActor
     func didTapSearchResult(_ result: MKMapItem) {
         guard let timeZone = result.timeZone,
-              let locality = result.placemark.locality
+              let locality = result.placemark.locality,
+              let identifier = result.placemark.identifier
         else {
             viewContract?.displayError(errorMessage: "Invalid place. Please try again later")
             return
@@ -117,7 +118,7 @@ final class FavouritesPresenter {
         let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.latitude == latitude && $0.longitude == longitude })
 
         var dto = FavouriteItemDTO(
-            identifier: UUID().uuidString,
+            identifier: identifier,
             latitude: latitude,
             longitude: longitude,
             timezone: timeZone,

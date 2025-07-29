@@ -14,7 +14,7 @@ enum ForecastDetailError: Error {
 /// For this SwiftUI view, let's use a view model pattern (and not a presenter like for the favourites view, made with UIKit).
 /// This aligns well with SwiftUI's declarative paradigm, where views react to state changes.
 final class ForecastDetailViewModel: ObservableObject {
-    let input: ForecastDetailInput
+    var input: ForecastDetailInput
     private let dependencies: ForecastDetailDependencies
 
     @Published var forecast: Loadable<ForecastDTO> = .loading
@@ -51,11 +51,11 @@ final class ForecastDetailViewModel: ObservableObject {
         Task(priority: .high) { [weak self] in
             guard let self else { return }
             if input.associatedItem.isFavourite {
+                input.associatedItem.isFavourite = false
                 try await dependencies.favouriteStore.removeFavourite(input.associatedItem)
             } else {
-                var newFavourite = input.associatedItem
-                newFavourite.isFavourite = true
-                try await dependencies.favouriteStore.createFavourite(from: newFavourite)
+                input.associatedItem.isFavourite = true
+                try await dependencies.favouriteStore.createFavourite(from: input.associatedItem)
             }
             await MainActor.run {
                 self.isFavourite.toggle()

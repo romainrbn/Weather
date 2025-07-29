@@ -33,6 +33,7 @@ struct ForecastDetailView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         viewModel.toggleFavourite()
+                        dismiss()
                     } label: {
                         viewModel.isFavourite ? Label("Remove from favourites", systemImage: "star.fill") : Label("Add to favourites", systemImage: "star")
                     }
