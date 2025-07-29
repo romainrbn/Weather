@@ -10,13 +10,15 @@ import Foundation
 struct GetForecastRoute: Route {
     typealias OutputType = APIWeatherForecast
 
-    var queryParams: [String : String] = [
-        "lat": "47.38502545",
-        "lon": "-0.4719574443962181",
-        "appid": Secret.apiKey,
-        "units": "metric",
-        "lang": "fr",
-    ]
+    private let inputParameters: [String: String]
+
+    init(inputParameters: [String : String]) {
+        self.inputParameters = inputParameters
+    }
+
+    var queryParams: [String : String] {
+        inputParameters
+    }
 
     var path: String {
         "forecast"

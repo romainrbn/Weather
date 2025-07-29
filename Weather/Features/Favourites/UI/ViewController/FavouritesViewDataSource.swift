@@ -20,7 +20,7 @@ final class FavouritesViewDataSource {
         didSet {
             guard content != oldValue else { return }
             var snapshot = currentSnapshot
-            if content.formattedLastUpdate != oldValue.formattedLastUpdate {
+            if content.formattedLastUpdate != oldValue.formattedLastUpdate && snapshot.sectionIdentifiers.contains(.favourites) {
                 snapshot.reloadSections([.favourites])
             }
             diffableDataSource.apply(snapshot)

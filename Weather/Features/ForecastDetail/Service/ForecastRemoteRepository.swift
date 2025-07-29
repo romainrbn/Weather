@@ -19,6 +19,14 @@ struct LiveForecastRemoteRepository: ForecastRemoteRepository {
     }
 
     func loadForecast(latitude: Double, longitude: Double) async throws -> APIWeatherForecast {
-        return try await router.performRequest(GetForecastRoute())
+        let route = GetForecastRoute(
+            inputParameters: [
+                "lat": "\(latitude)",
+                "lon": "\(longitude)",
+                "appid": Secret.apiKey,
+                "units": "metric"
+            ]
+        )
+        return try await router.performRequest(route)
     }
 }
