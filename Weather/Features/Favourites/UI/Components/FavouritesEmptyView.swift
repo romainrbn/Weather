@@ -17,6 +17,8 @@ struct FavouritesEmptyView: View {
 
     private let onUseCurrentLocationTapped: (() -> Void)?
 
+    @StateObject private var locationManager = LocationManager()
+
     init(onUseCurrentLocationTapped: (() -> Void)?) {
         self.onUseCurrentLocationTapped = onUseCurrentLocationTapped
     }
@@ -36,7 +38,7 @@ struct FavouritesEmptyView: View {
             VStack(spacing: .spacing100) {
                 Text("Add favourites by searching a city in the field above.")
 
-                if CLLocationManager().authorizationStatus != .denied {
+                if locationManager.authorizationStatus != .denied {
                     Text("- or -")
                         .foregroundStyle(.tertiary)
                         .font(.caption2)

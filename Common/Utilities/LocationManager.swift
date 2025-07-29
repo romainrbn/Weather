@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import CoreLocation
 
 enum LocationManagerError: Error {
@@ -13,13 +14,15 @@ enum LocationManagerError: Error {
     case locationNotFound
 }
 
-final class LocationManager: NSObject, CLLocationManagerDelegate {
+final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let locationManager = CLLocationManager()
     private let geocoder = CLGeocoder()
 
     private var locationCompletion: ((Result<CLLocationCoordinate2D, LocationManagerError>) -> Void)?
 
     private(set) var hasGrantedPermission: Bool
+
+    @Published var authorizationStatus: CLAuthorizationStatus?
 
     override init() {
         hasGrantedPermission = locationManager.authorizationStatus == .authorizedWhenInUse
@@ -84,6 +87,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        self.authorizationStatus = manager.authorizationStatus
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorized:
             hasGrantedPermission = true
