@@ -25,10 +25,6 @@ final class UserPreferencesRepository {
         }
         set {
             defaults.set(newValue.rawValue, forKey: Keys.temperatureUnit)
-
-            // Using NotificationCenter here makes it easy to notify multiple parts of the app
-            // when the preferred unit changes. In a larger app, this avoids manual updates
-            // of multiple elements, which can create unneeded complexity.
             NotificationCenter.default.post(name: .didReloadUserPreferredUnit, object: nil)
         }
     }

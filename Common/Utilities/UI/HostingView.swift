@@ -8,25 +8,16 @@
 import UIKit
 import SwiftUI
 
-/// A UIView wrapper that hosts SwiftUI views using `UIHostingController` internally
+/// A `UIView` wrapper that host a SwiftUI view using `UIHostingController` internally
 /// This allows embedding SwiftUI views directly as `UIView`s without exposing `UIHostingController` at the call site
 final class HostingView<RootView: View>: UIView {
 
     private let hostingController: UIHostingController<RootView>
 
-    var rootView: RootView {
-        get { hostingController.rootView }
-        set { hostingController.rootView = newValue }
-    }
-
     init(rootView: RootView) {
         self.hostingController = UIHostingController(rootView: rootView)
         super.init(frame: .zero)
         setupHostingController()
-    }
-
-    convenience init(@ViewBuilder content: () -> RootView) {
-        self.init(rootView: content())
     }
 
     @available(*, unavailable)
@@ -72,7 +63,12 @@ final class HostingView<RootView: View>: UIView {
     }
 
     override var intrinsicContentSize: CGSize {
-        return hostingController.sizeThatFits(in: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
+        return hostingController.sizeThatFits(
+            in: CGSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+        )
     }
 }
 

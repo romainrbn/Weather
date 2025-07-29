@@ -15,7 +15,6 @@ final class ForecastDetailViewModel: ObservableObject {
 
     @Published var forecast: ForecastDTO? = nil
 
-
     init(input: ForecastDetailInput, dependencies: ForecastDetailDependencies) {
         self.input = input
         self.dependencies = dependencies

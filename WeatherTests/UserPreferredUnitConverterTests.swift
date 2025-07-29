@@ -17,7 +17,7 @@ struct UserPreferredUnitConverterTests {
         let inputCelsius = 0.0
         let expectedFahrenheit = 32.0
 
-        let result = converter.convertToFahrenheit(celciusValue: inputCelsius)
+        let result = converter.convertToFahrenheit(celsiusValue: inputCelsius)
 
         #expect(abs(result - expectedFahrenheit) < epsilon)
     }

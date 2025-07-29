@@ -33,13 +33,13 @@ struct APIWeatherConditionMapping {
     private static let maximumRange: Int = 899
 
     static let all: [APIWeatherConditionMapping] = [
-        .init(code: .range(200...299), condition: .thunderstorm),
-        .init(code: .range(300...399), condition: .drizzle),
-        .init(code: .range(500...599), condition: .rain),
-        .init(code: .range(600...699), condition: .snow),
-        .init(code: .range(700...799), condition: .atmosphere),
-        .init(code: .exact(800), condition: .clear),
-        .init(code: .range(801...899), condition: .clouds)
+        APIWeatherConditionMapping(code: .range(200...299), condition: .thunderstorm),
+        APIWeatherConditionMapping(code: .range(300...399), condition: .drizzle),
+        APIWeatherConditionMapping(code: .range(500...599), condition: .rain),
+        APIWeatherConditionMapping(code: .range(600...699), condition: .snow),
+        APIWeatherConditionMapping(code: .range(700...799), condition: .atmosphere),
+        APIWeatherConditionMapping(code: .exact(800), condition: .clear),
+        APIWeatherConditionMapping(code: .range(801...899), condition: .clouds)
     ]
 
     static func map(weatherID: Int) -> WeatherCondition {

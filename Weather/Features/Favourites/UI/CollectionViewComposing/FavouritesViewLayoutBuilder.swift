@@ -23,7 +23,7 @@ struct FavouritesViewLayoutBuilder {
         listConfiguration.backgroundColor = .systemGroupedBackground
 
         let section = NSCollectionLayoutSection.list(using: listConfiguration, layoutEnvironment: layoutEnvironment)
-        section.contentInsets = .init(allEdges: .spacing400)
+        section.contentInsets = NSDirectionalEdgeInsets(allEdges: .spacing400)
         section.interGroupSpacing = .spacing400
 
         let sectionHeader = headerSupplementaryView()

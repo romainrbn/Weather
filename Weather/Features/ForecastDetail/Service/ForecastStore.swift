@@ -57,6 +57,6 @@ struct LiveForecastStore: ForecastStore {
     }
 
     private func loadCurrentWeather(_ latitude: Double, _ longitude: Double) async throws -> WeatherReport {
-        .init(celsiusTemperature: 25, condition: .rain)
+        WeatherReport(celsiusTemperature: 25, condition: .rain)
     }
 }

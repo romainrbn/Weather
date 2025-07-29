@@ -26,7 +26,7 @@ private struct DailyAccumulator {
 
     var report: WeatherReport {
         let averageTemperature = count > 0 ? Int((sumTemperature / Double(count)).rounded()) : 0
-        return .init(celsiusTemperature: averageTemperature, condition: worstCondition)
+        return WeatherReport(celsiusTemperature: averageTemperature, condition: worstCondition)
     }
 
     mutating func add(snapshot: APIWeatherSnapshot) {
