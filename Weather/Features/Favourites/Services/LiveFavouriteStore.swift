@@ -54,7 +54,7 @@ final class LiveFavouriteStore: FavouriteStore {
     ) async throws {
         guard
             let currentWeather = dto.currentWeather,
-            let temperaturesRanges = dto.todayTemperaturesRange
+            let temperaturesRanges = currentWeather.temperatureRanges
         else {
             throw FavouriteStoreError.missingNecessaryData
         }

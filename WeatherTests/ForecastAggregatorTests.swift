@@ -32,7 +32,9 @@ struct ForecastAggregatorTests {
 
         let expectedReport = WeatherReport(
             celsiusTemperature: Int(temperature.rounded()),
+            feelsLikeTemperature: nil,
             condition: .clear,
+            temperatureRanges: nil,
             conditionName: "Clear"
         )
 
@@ -60,7 +62,9 @@ struct ForecastAggregatorTests {
         let expectedTemp = Int(((baseTemp1 + baseTemp2) / 2.0).rounded())
         let expectedReport = WeatherReport(
             celsiusTemperature: expectedTemp,
+            feelsLikeTemperature: nil,
             condition: .thunderstorm,
+            temperatureRanges: nil,
             conditionName: "Storms"
         )
 

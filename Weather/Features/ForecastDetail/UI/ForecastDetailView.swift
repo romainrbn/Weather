@@ -53,14 +53,21 @@ struct ForecastDetailView: View {
     }
 
     @ViewBuilder
-    private func loadedForecastView(_ forecast: ForecastDTO) -> some View {
-        ScrollView(.vertical) {
-            Text("\(forecast)")
-        }
+    private func loadedForecastView(_ forecast: ForecastViewDescriptor) -> some View {
+        LoadedForecastView(forecast: forecast)
+            .environmentObject(viewModel)
     }
 
     @ViewBuilder
     private func errorView(_ error: any Error) -> some View {
-        Text("An error occured! \(error)")
+        VStack(spacing: .spacing200) {
+            Image(systemName: "xmark")
+                .foregroundStyle(.accent)
+
+            Text("Error")
+                .font(.title)
+
+            Text(error.message)
+        }
     }
 }

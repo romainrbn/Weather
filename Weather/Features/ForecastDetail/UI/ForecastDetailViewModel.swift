@@ -5,6 +5,7 @@
 //  Created by Romain Rabouan on 7/27/25.
 //
 
+import Foundation
 import Combine
 
 enum ForecastDetailError: Error {
@@ -16,14 +17,16 @@ enum ForecastDetailError: Error {
 final class ForecastDetailViewModel: ObservableObject {
     var input: ForecastDetailInput
     private let dependencies: ForecastDetailDependencies
+    private let mapper: ForecastViewDescriptorMapper
 
-    @Published var forecast: Loadable<ForecastDTO> = .loading
+    @Published var forecast: Loadable<ForecastViewDescriptor> = .loading
     @Published var isFavourite: Bool
 
     init(input: ForecastDetailInput, dependencies: ForecastDetailDependencies) {
         self.input = input
         self.dependencies = dependencies
         self.isFavourite = input.associatedItem.isFavourite
+        self.mapper = ForecastViewDescriptorMapper(preferencesRepository: dependencies.preferencesRepository)
     }
 
     func loadData() async {
@@ -35,10 +38,15 @@ final class ForecastDetailViewModel: ObservableObject {
             let loadedForecast = try await dependencies.forecastStore.loadForecast(
                 latitude: input.associatedItem.latitude,
                 longitude: input.associatedItem.longitude,
+                cityName: input.associatedItem.locationName,
                 currentWeather: currentWeather
             )
+            let forecastDescriptor = mapper.map(
+                from: loadedForecast,
+                timezone: input.associatedItem.timezone
+            )
             await MainActor.run {
-                self.forecast = .value(loadedForecast)
+                self.forecast = .value(forecastDescriptor)
             }
         } catch {
             await MainActor.run {

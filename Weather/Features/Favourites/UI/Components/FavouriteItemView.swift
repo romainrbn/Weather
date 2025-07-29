@@ -41,7 +41,11 @@ struct FavouriteItemView: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .symbolRenderingMode(.palette)
-            .foregroundStyle(item.primaryColor, item.secondaryColor, item.teriaryColor)
+            .foregroundStyle(
+                item.conditionSymbolColorRepresentation.primaryColor,
+                item.conditionSymbolColorRepresentation.secondaryColor,
+                item.conditionSymbolColorRepresentation.teriaryColor
+            )
             .frame(width: Constants.currentConditionsSymbolFrame, height: Constants.currentConditionsSymbolFrame)
     }
 

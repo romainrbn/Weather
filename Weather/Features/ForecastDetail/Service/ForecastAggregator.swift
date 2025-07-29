@@ -27,7 +27,13 @@ private struct DailyAccumulator {
 
     var report: WeatherReport {
         let averageTemperature = count > 0 ? Int((sumTemperature / Double(count)).rounded()) : 0
-        return WeatherReport(celsiusTemperature: averageTemperature, condition: worstCondition, conditionName: worstConditionName ?? "-")
+        return WeatherReport(
+            celsiusTemperature: averageTemperature,
+            feelsLikeTemperature: nil,
+            condition: worstCondition,
+            temperatureRanges: nil,
+            conditionName: worstConditionName ?? "-"
+        )
     }
 
     mutating func add(snapshot: APIWeatherSnapshot) {
@@ -77,7 +83,13 @@ struct ForecastAggregator {
             let time = Date(timeIntervalSince1970: snapshot.timestamp)
             let tempC = Int(snapshot.main.temperature.rounded())
             let condition = APIWeatherConditionMapping.map(weatherID: mainWeather.id)
-            let report = WeatherReport(celsiusTemperature: tempC, condition: condition, conditionName: mainWeather.description)
+            let report = WeatherReport(
+                celsiusTemperature: tempC,
+                feelsLikeTemperature: nil,
+                condition: condition,
+                temperatureRanges: nil,
+                conditionName: mainWeather.description
+            )
 
             return HourlyForecast(time: time, report: report)
         }

@@ -17,7 +17,6 @@ struct FavouriteItemDTO: Hashable {
     var locationName: String
     var isFavourite: Bool
     var currentWeather: WeatherReport?
-    var todayTemperaturesRange: CurrentDayTemperatureRange?
 
     init(
         identifier: String,
@@ -28,8 +27,7 @@ struct FavouriteItemDTO: Hashable {
         sortOrder: Int? = nil,
         locationName: String,
         isFavourite: Bool,
-        currentWeather: WeatherReport?,
-        todayTemperaturesRange: CurrentDayTemperatureRange?
+        currentWeather: WeatherReport?
     ) {
         self.identifier = identifier
         self.latitude = latitude
@@ -40,7 +38,6 @@ struct FavouriteItemDTO: Hashable {
         self.locationName = locationName
         self.isFavourite = isFavourite
         self.currentWeather = currentWeather
-        self.todayTemperaturesRange = todayTemperaturesRange
     }
 }
 
@@ -50,13 +47,13 @@ extension FavouriteItemDTO {
 
         self.currentWeather = WeatherReport(
             celsiusTemperature: Int(weatherData.mainInfo.temperature.rounded()),
+            feelsLikeTemperature: Int(weatherData.mainInfo.feelsLike.rounded()),
             condition: APIWeatherConditionMapping.map(weatherID: mainWeather.id),
+            temperatureRanges: .init(
+                minimumCelsiusTemperature: Int(weatherData.mainInfo.minTemperature.rounded()),
+                maximumCelsiusTemperature: Int(weatherData.mainInfo.maxTemperature.rounded())
+            ),
             conditionName: mainWeather.description
-        )
-
-        self.todayTemperaturesRange = CurrentDayTemperatureRange(
-            minimumCelsiusTemperature: Int(weatherData.mainInfo.minTemperature.rounded()),
-            maximumCelsiusTemperature: Int(weatherData.mainInfo.maxTemperature.rounded())
         )
     }
 }

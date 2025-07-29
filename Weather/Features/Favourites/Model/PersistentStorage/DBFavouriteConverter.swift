@@ -33,18 +33,18 @@ struct DBFavouriteConverter: DTOConverter {
             isFavourite: true,
             currentWeather: createCurrentWeatherObject(
                 temperature: object.temperature,
+                temperatureMin: object.temperatureMin,
+                temperatureMax: object.temperatureMax,
                 rawCondition: object.condition,
                 conditionName: conditionName
-            ),
-            todayTemperaturesRange: CurrentDayTemperatureRange(
-                minimumCelsiusTemperature: Int(object.temperatureMin),
-                maximumCelsiusTemperature: Int(object.temperatureMax)
             )
         )
     }
 
     private func createCurrentWeatherObject(
         temperature: Int16,
+        temperatureMin: Int16,
+        temperatureMax: Int16,
         rawCondition: Int16,
         conditionName: String
     ) -> WeatherReport? {
@@ -54,7 +54,12 @@ struct DBFavouriteConverter: DTOConverter {
 
         return WeatherReport(
             celsiusTemperature: Int(temperature),
+            feelsLikeTemperature: nil,
             condition: condition,
+            temperatureRanges: CurrentDayTemperatureRange(
+                minimumCelsiusTemperature: Int(temperatureMin),
+                maximumCelsiusTemperature: Int(temperatureMax)
+            ),
             conditionName: conditionName
         )
     }

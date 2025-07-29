@@ -10,4 +10,5 @@ import Foundation
 struct ForecastDetailDependencies {
     let favouriteStore: FavouriteStore
     let forecastStore: ForecastStore
+    let preferencesRepository: UserPreferencesRepository
 }

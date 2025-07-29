@@ -172,8 +172,7 @@ final class FavouritesPresenter {
             isCurrentLocation: isCurrentLocation,
             locationName: locality,
             isFavourite: isAlreadyFavourite,
-            currentWeather: nil,
-            todayTemperaturesRange: nil
+            currentWeather: nil
         )
 
         Task(priority: .userInitiated) { [weak self] in
@@ -261,7 +260,8 @@ final class FavouritesPresenter {
             ),
             dependencies: ForecastDetailDependencies(
                 favouriteStore: dependencies.favouriteStore,
-                forecastStore: dependencies.forecastStore
+                forecastStore: dependencies.forecastStore,
+                preferencesRepository: dependencies.preferencesRepository
             )
         )
 

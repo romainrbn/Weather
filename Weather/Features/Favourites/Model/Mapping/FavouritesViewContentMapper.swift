@@ -64,7 +64,7 @@ struct FavouritesViewContentMapper {
     private func favouriteViewDescriptor(from favouriteItem: FavouriteItemDTO) -> FavouriteViewDescriptor? {
         guard
             let currentWeather = favouriteItem.currentWeather,
-            let temperatureRange = favouriteItem.todayTemperaturesRange
+            let temperatureRange = currentWeather.temperatureRanges
         else {
             return nil
         }
@@ -79,9 +79,11 @@ struct FavouritesViewContentMapper {
             currentConditionsSymbolName: currentWeather.condition.associatedSystemSymbolName,
             minimumTemperature: formattedTemperature(value: temperatureRange.minimumCelsiusTemperature),
             maximumTemperature: formattedTemperature(value: temperatureRange.maximumCelsiusTemperature),
-            primaryColor: currentWeather.condition.primaryColor,
-            secondaryColor: currentWeather.condition.secondaryColor,
-            teriaryColor: currentWeather.condition.teriaryColor
+            conditionSymbolColorRepresentation: .init(
+                primaryColor: currentWeather.condition.primaryColor,
+                secondaryColor: currentWeather.condition.secondaryColor,
+                teriaryColor: currentWeather.condition.teriaryColor
+            )
         )
     }
 

@@ -17,7 +17,5 @@ struct FavouriteViewDescriptor: Hashable {
     let currentConditionsSymbolName: String
     let minimumTemperature: String
     let maximumTemperature: String
-    let primaryColor: Color
-    let secondaryColor: Color
-    let teriaryColor: Color
+    let conditionSymbolColorRepresentation: ConditionSymbolColorRepresentation
 }

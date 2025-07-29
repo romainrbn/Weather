@@ -9,6 +9,7 @@ import Foundation
 
 struct WSForecastConverter {
     static func convert(
+        cityName: String,
         currentWeather: WeatherReport,
         wsForecast: APIWeatherForecast
     ) -> ForecastDTO {
@@ -17,7 +18,7 @@ struct WSForecastConverter {
         )
 
         return ForecastDTO(
-            cityName: wsForecast.city.name,
+            cityName: cityName,
             currentWeather: currentWeather,
             hourlyDetailedConditions: hourlyConditions,
             nextDaysDetailedConditions: dailyConditions

@@ -33,10 +33,13 @@ struct FavouriteItemDTOTests {
 
         #expect(dto.currentWeather == WeatherReport(
             celsiusTemperature: 20,
-            condition: .clear
+            feelsLikeTemperature: nil,
+            condition: .clear,
+            temperatureRanges: nil,
+            conditionName: "Clear"
         ))
 
-        #expect(dto.todayTemperaturesRange == CurrentDayTemperatureRange(
+        #expect(dto.currentWeather?.temperatureRanges == CurrentDayTemperatureRange(
             minimumCelsiusTemperature: 12,
             maximumCelsiusTemperature: 23
         ))
@@ -50,7 +53,6 @@ struct FavouriteItemDTOTests {
         dto.apply(weatherData: weather)
 
         #expect(dto.currentWeather == nil)
-        #expect(dto.todayTemperaturesRange == nil)
     }
 
     // MARK: - Private Helpers
@@ -68,8 +70,8 @@ struct FavouriteItemDTOTests {
             longitude: lon,
             timezone: try #require(TimeZone(identifier: timeZoneIdentifier)),
             locationName: name,
-            currentWeather: nil,
-            todayTemperaturesRange: nil
+            isFavourite: false,
+            currentWeather: nil
         )
     }
 
