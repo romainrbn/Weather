@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 enum ForecastDetailError: Error {
     case missingNecessaryData
@@ -67,6 +68,11 @@ final class ForecastDetailViewModel: ObservableObject {
             }
             await MainActor.run {
                 self.isFavourite.toggle()
+
+                // .sensoryFeedback was introduced with iOS 17.0
+                let generator = UISelectionFeedbackGenerator()
+                generator.prepare()
+                generator.selectionChanged()
             }
         }
     }

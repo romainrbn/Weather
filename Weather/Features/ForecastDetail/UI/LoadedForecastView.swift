@@ -15,17 +15,20 @@ private enum Constants {
     static let dailyForecastConditionImageSize: CGFloat = 40
 }
 
+private struct HourlyForecastGroup: Identifiable {
+    let id: Date
+    let label: String
+    let accessibilityTitle: String
+    let entries: [ForecastViewDescriptor.HourlyForecastDescriptor]
+}
+
 struct LoadedForecastView: View {
     @EnvironmentObject private var viewModel: ForecastDetailViewModel
     private let forecast: ForecastViewDescriptor
 
-    @State private var scrollTargetDate: Date?
+    private let generator = UISelectionFeedbackGenerator()
 
-    struct HourlyForecastGroup: Identifiable {
-        let id: Date
-        let label: String
-        let entries: [ForecastViewDescriptor.HourlyForecastDescriptor]
-    }
+    @State private var scrollTargetDate: Date?
 
     private var groupedHourlyForecasts: [HourlyForecastGroup] {
         let calendar = Calendar(identifier: .gregorian)
@@ -33,9 +36,14 @@ struct LoadedForecastView: View {
         return forecast.hourlyForecastByDay
             .compactMap { components, entries in
                 guard let date = calendar.date(from: components) else { return nil }
-
+                
                 let label = formattedDay(date)
-                return HourlyForecastGroup(id: date, label: label, entries: entries.sorted(by: { $0.date < $1.date }))
+                return HourlyForecastGroup(
+                    id: date,
+                    label: label,
+                    accessibilityTitle: date.formatted(date: .omitted, time: .shortened),
+                    entries: entries.sorted(by: { $0.date < $1.date })
+                )
             }
             .sorted(by: { $0.id < $1.id })
     }
@@ -117,12 +125,15 @@ struct LoadedForecastView: View {
                                 .frame(width: 1, height: Constants.hourlyForecastConditionImageSize)
                                 .background(Color.secondary)
                         }
+                        .accessibilityLabel(group.accessibilityTitle)
                         .tag(group.id)
 
                         ForEach(group.entries, id: \.id) { hourlyForecast in
                             VStack(spacing: .spacing100) {
                                 Text(hourlyForecast.formattedTime)
                                 symbolView(hourlyForecast.symbol, size: Constants.hourlyForecastConditionImageSize)
+                                Text(hourlyForecast.temperature)
+                                    .foregroundStyle(.secondary)
                             }
                             .accessibilityElement(children: .combine)
                             .accessibilityLabel(hourlyForecast.temperature)
@@ -153,6 +164,8 @@ struct LoadedForecastView: View {
                     ForEach(forecast.dailyForecast) { dailyForecast in
                         Button {
                             if let matchingGroup = groupedHourlyForecasts.first(where: { $0.label == dailyForecast.associatedTime }) {
+                                generator.selectionChanged()
+
                                 scrollTargetDate = matchingGroup.id
                             }
                         } label: {

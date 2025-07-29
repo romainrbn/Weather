@@ -1,5 +1,5 @@
 //
-//  FavouritesViewController+DragDrop.swift
+//  FavouritesViewController+Interaction.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/28/25.
@@ -57,5 +57,32 @@ extension FavouritesViewController: UICollectionViewDragDelegate, UICollectionVi
         withDestinationIndexPath destinationIndexPath: IndexPath?
     ) -> UICollectionViewDropProposal {
         return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+    }
+}
+
+// MARK: - Long press actions
+
+extension FavouritesViewController {
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        let item = dataSource.content.items[indexPath.item]
+
+        return UIContextMenuConfiguration(
+            identifier: indexPath as NSCopying,
+            previewProvider: nil
+        ) { _ in
+            let removeAction = UIAction(
+                title: "Remove Favourite",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { [weak self] _ in
+                self?.presenter?.removeFavourite(item)
+            }
+
+            return UIMenu(title: item.locationName, children: [removeAction])
+        }
     }
 }
