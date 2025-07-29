@@ -96,6 +96,8 @@ struct LoadedForecastView: View {
                 TemperatureRangeView(minimumTemperature: minimumTemperature, maximumTemperature: maximumTemperature)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(forecast.currentConditions.conditions)
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
@@ -122,6 +124,8 @@ struct LoadedForecastView: View {
                                 Text(hourlyForecast.formattedTime)
                                 symbolView(hourlyForecast.symbol, size: Constants.hourlyForecastConditionImageSize)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel(hourlyForecast.temperature)
                             .padding(.horizontal, .spacing200)
                         }
                     }
@@ -143,7 +147,7 @@ struct LoadedForecastView: View {
             Text("Tap a day to see its forecast")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .center, spacing: .spacing300) {
                     ForEach(forecast.dailyForecast) { dailyForecast in
