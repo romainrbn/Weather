@@ -13,7 +13,7 @@ private enum RouterConstants {
 }
 
 protocol Router {
-    var session: URLSession { get }
+    var session: RouterSession { get }
 
     @discardableResult
     func performRequest<T: Route>(_ route: T) async throws -> T.OutputType
@@ -31,14 +31,16 @@ extension Router {
         _ data: Data,
         urlResponse: URLResponse
     ) throws -> T.OutputType {
-        let decoder = JSONDecoder()
+        guard let httpResponse = urlResponse as? HTTPURLResponse else {
+            throw RouterError.unknown(underlyingError: URLError(.badServerResponse))
+        }
+
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            throw RouterError.serverError(errorCode: httpResponse.statusCode)
+        }
 
         do {
-            let response = try decoder.decode(T.OutputType.self, from: data)
-            guard let httpResponse = urlResponse as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
-                return try createFailure(route, with: (urlResponse as? HTTPURLResponse)?.statusCode ?? 0)
-            }
-            return response
+            return try JSONDecoder().decode(T.OutputType.self, from: data)
         } catch {
             throw RouterError.decodingError(underlyingError: error)
         }

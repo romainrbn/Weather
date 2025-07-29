@@ -8,9 +8,9 @@
 import Foundation
 
 struct LiveRouter: Router {
-    let session: URLSession
+    let session: RouterSession
 
-    init(session: URLSession = URLSession.shared) {
+    init(session: RouterSession = URLSession.shared) {
         self.session = session
     }
 
