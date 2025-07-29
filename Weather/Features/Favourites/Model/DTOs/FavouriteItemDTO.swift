@@ -14,6 +14,7 @@ struct FavouriteItemDTO: Hashable {
     let timezone: TimeZone
     var sortOrder: Int?
     var locationName: String
+    var isFavourite: Bool
     var currentWeather: WeatherReport?
     var todayTemperaturesRange: CurrentDayTemperatureRange?
 
@@ -24,6 +25,7 @@ struct FavouriteItemDTO: Hashable {
         timezone: TimeZone,
         sortOrder: Int? = nil,
         locationName: String,
+        isFavourite: Bool,
         currentWeather: WeatherReport?,
         todayTemperaturesRange: CurrentDayTemperatureRange?
     ) {
@@ -33,6 +35,7 @@ struct FavouriteItemDTO: Hashable {
         self.timezone = timezone
         self.sortOrder = sortOrder
         self.locationName = locationName
+        self.isFavourite = isFavourite
         self.currentWeather = currentWeather
         self.todayTemperaturesRange = todayTemperaturesRange
     }

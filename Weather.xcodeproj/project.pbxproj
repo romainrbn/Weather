@@ -243,6 +243,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OPENWEATHERMAP_APIKEY = 4aa698cc2572f540f79280272d0461c6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romainrbn.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -274,6 +275,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OPENWEATHERMAP_APIKEY = 4aa698cc2572f540f79280272d0461c6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romainrbn.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

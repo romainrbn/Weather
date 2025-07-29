@@ -17,6 +17,10 @@ extension Error {
             message = localizedDescription
         }
 
-        return message
+        if message.isEmpty == false {
+            return message
+        }
+
+        return "An unknown error occured. Please try again later."
     }
 }

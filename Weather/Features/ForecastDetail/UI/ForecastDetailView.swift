@@ -17,20 +17,47 @@ struct ForecastDetailView: View {
     }
 
     var body: some View {
-        VStack {
-            if let currentWeather = viewModel.forecast {
-                Text("Current Weather is \(currentWeather.currentWeather.celsiusTemperature)°C in \(viewModel.input.associatedItem.locationName)")
-
-                Text("lat: \(viewModel.input.associatedItem.latitude), lon: \(viewModel.input.associatedItem.longitude)")
+        NavigationStack {
+            Group {
+                switch viewModel.forecast {
+                case .value(let forecast):
+                    loadedForecastView(forecast)
+                case .loading:
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                case .error(let error):
+                    errorView(error)
+                }
             }
-
-            Button("Add to Favourites") {
-                viewModel.addToFavourites()
-                dismiss()
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        viewModel.toggleFavourite()
+                    } label: {
+                        viewModel.isFavourite ? Label("Remove from favourites", systemImage: "star.fill") : Label("Add to favourites", systemImage: "star")
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
             }
         }
         .task {
             await viewModel.loadData()
         }
+    }
+
+    @ViewBuilder
+    private func loadedForecastView(_ forecast: ForecastDTO) -> some View {
+        Text("Forecasr")
+    }
+
+    @ViewBuilder
+    private func errorView(_ error: any Error) -> some View {
+        Text("An error occured! \(error)")
     }
 }

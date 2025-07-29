@@ -46,7 +46,8 @@ final class FavouritesPresenter {
     deinit {
         NotificationCenter.default.removeObserver(self)
         favouriteStreamTask?.cancel()
-        favouriteStreamTask = nil
+        loadDataTask?.cancel()
+        pullToRefreshTask?.cancel()
     }
 
     /// Starts the fetching of all the data, and displays it!
@@ -111,12 +112,17 @@ final class FavouritesPresenter {
             return
         }
 
+        let latitude = result.placemark.coordinate.latitude
+        let longitude = result.placemark.coordinate.longitude
+        let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.latitude == latitude && $0.longitude == longitude })
+
         var dto = FavouriteItemDTO(
             identifier: UUID().uuidString,
-            latitude: result.placemark.coordinate.latitude,
-            longitude: result.placemark.coordinate.longitude,
+            latitude: latitude,
+            longitude: longitude,
             timezone: timeZone,
             locationName: locality,
+            isFavourite: isAlreadyFavourite,
             currentWeather: nil,
             todayTemperaturesRange: nil
         )
@@ -237,11 +243,13 @@ final class FavouritesPresenter {
             for await change in dependencies.favouriteStore.favouritesChangeStream() {
                 switch change {
                 case .added(let dto):
-                    guard state.favouriteDTOs.contains(dto) == false else { return }
-
+                    if let existingDTOIndex = state.favouriteDTOs.firstIndex(where: { $0.identifier == dto.identifier }) {
+                        state.favouriteDTOs[existingDTOIndex].isFavourite = true
+                        return
+                    }
                     state.favouriteDTOs.append(dto)
                 case .removed(let dto):
-                    state.favouriteDTOs.removeAll(where: { $0 == dto })
+                    state.favouriteDTOs.removeAll(where: { $0.identifier == dto.identifier })
                 }
 
                 await MainActor.run {

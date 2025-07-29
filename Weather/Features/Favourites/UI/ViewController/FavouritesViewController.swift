@@ -33,6 +33,17 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
         setup()
         presenter?.loadData()
+
+        #if DEBUG
+        if Secret.apiKey == Secret.noApiKeyValue {
+            displayError(
+                errorMessage: """
+                🔑 Missing API Key! Please configure it in OPENWEATHERMAP_APIKEY User-Defined build setting.
+                For setup instructions, see the README.md file in the project root.
+                """
+            )
+        }
+        #endif
     }
 
     // MARK: - FavouritesViewContract conformance
@@ -53,7 +64,7 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     func displayError(errorMessage: String) {
         let alertController = UIAlertController(
             title: "Error",
-            message: "An unexpected error occured: \(errorMessage)",
+            message: errorMessage,
             preferredStyle: .alert
         )
         alertController.addAction(UIAlertAction(title: "OK", style: .cancel))

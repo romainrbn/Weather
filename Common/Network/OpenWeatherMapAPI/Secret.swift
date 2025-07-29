@@ -8,11 +8,23 @@
 import Foundation
 
 struct Secret {
+    static let noApiKeyValue: String = "YOUR_API_KEY"
+
     static var apiKey: String {
-        if let environmentKey = ProcessInfo.processInfo.environment["OPENWEATHERMAP_APIKEY"] {
-            return environmentKey
-        } else {
-            fatalError("Please add your OpenWeatherMap API key in the environment values in Xcode, for the OPENWEATHERMAP_APIKEY key")
+        if let key = Bundle.main.object(forInfoDictionaryKey: "OpenWeatherMapAPIKey") as? String,
+           !key.isEmpty,
+           key != noApiKeyValue
+        {
+            return key
         }
+
+        Log.log(
+        """
+        Missing OpenWeatherMap API key!
+        Please define the API key in the OPENWEATHERMAP_APIKEY User-Defined build setting.
+        """
+        )
+
+        return Secret.noApiKeyValue
     }
 }

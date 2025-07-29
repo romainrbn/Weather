@@ -7,23 +7,28 @@
 
 import Combine
 
+enum ForecastDetailError: Error {
+    case missingNecessaryData
+}
+
 /// For this SwiftUI view, let's use a view model pattern (and not a presenter like for the favourites view, made with UIKit).
 /// This aligns well with SwiftUI's declarative paradigm, where views react to state changes.
 final class ForecastDetailViewModel: ObservableObject {
     let input: ForecastDetailInput
     private let dependencies: ForecastDetailDependencies
 
-    @Published var forecast: ForecastDTO? = nil
+    @Published var forecast: Loadable<ForecastDTO> = .loading
+    @Published var isFavourite: Bool
 
     init(input: ForecastDetailInput, dependencies: ForecastDetailDependencies) {
         self.input = input
         self.dependencies = dependencies
+        self.isFavourite = input.associatedItem.isFavourite
     }
 
     func loadData() async {
         guard let currentWeather = input.associatedItem.currentWeather else {
-            // Display an alert to the user
-            Log.log("The current weather should have already been loaded at this point.")
+            self.forecast = .error(ForecastDetailError.missingNecessaryData)
             return
         }
         do {
@@ -33,18 +38,28 @@ final class ForecastDetailViewModel: ObservableObject {
                 currentWeather: currentWeather
             )
             await MainActor.run {
-                self.forecast = loadedForecast
+                self.forecast = .value(loadedForecast)
             }
         } catch {
-            // TODO: display error: IMPORTANT: Filter out URL Session errors to display core data backed info.
-            print(error)
+            await MainActor.run {
+                self.forecast = .error(error)
+            }
         }
     }
 
-    func addToFavourites() {
+    func toggleFavourite() {
         Task(priority: .high) { [weak self] in
             guard let self else { return }
-            try await dependencies.favouriteStore.createFavourite(from: input.associatedItem)
+            if input.associatedItem.isFavourite {
+                try await dependencies.favouriteStore.removeFavourite(input.associatedItem)
+            } else {
+                var newFavourite = input.associatedItem
+                newFavourite.isFavourite = true
+                try await dependencies.favouriteStore.createFavourite(from: newFavourite)
+            }
+            await MainActor.run {
+                self.isFavourite.toggle()
+            }
         }
     }
 }
