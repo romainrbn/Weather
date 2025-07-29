@@ -75,21 +75,7 @@ struct FavouriteItemView: View {
                 .padding(.bottom)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: .spacing200) {
-                HStack(spacing: .spacing50) {
-                    Image(systemName: "arrow.down")
-                    Text(item.minimumTemperature)
-                }
-
-                Divider()
-
-                HStack(spacing: .spacing50) {
-                    Image(systemName: "arrow.up")
-                    Text(item.maximumTemperature)
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            TemperatureRangeView(minimumTemperature: item.minimumTemperature, maximumTemperature: item.maximumTemperature)
         }
     }
 }

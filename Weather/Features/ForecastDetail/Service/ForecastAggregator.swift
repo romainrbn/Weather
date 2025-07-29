@@ -25,13 +25,16 @@ private struct DailyAccumulator {
     private(set) var worstCondition: WeatherCondition = .unknown
     private(set) var worstConditionName: String? = nil
 
+    private var minimumTemperature: Double?
+    private var maximumTemperature: Double?
+
     var report: WeatherReport {
         let averageTemperature = count > 0 ? Int((sumTemperature / Double(count)).rounded()) : 0
         return WeatherReport(
             celsiusTemperature: averageTemperature,
             feelsLikeTemperature: nil,
             condition: worstCondition,
-            temperatureRanges: nil,
+            temperatureRanges: temperatureRanges(minimum: minimumTemperature, maximum: maximumTemperature),
             conditionName: worstConditionName ?? "-"
         )
     }
@@ -42,6 +45,9 @@ private struct DailyAccumulator {
             return
         }
         sumTemperature += snapshot.main.temperature
+        minimumTemperature = snapshot.main.minTemperature
+        maximumTemperature = snapshot.main.maxTemperature
+
         count += 1
 
         let condition = APIWeatherConditionMapping.map(weatherID: mainWeather.id)
@@ -49,6 +55,15 @@ private struct DailyAccumulator {
             worstCondition = condition
             worstConditionName = mainWeather.description
         }
+    }
+
+    private func temperatureRanges(minimum: Double?, maximum: Double?) -> CurrentDayTemperatureRange? {
+        guard let minimum, let maximum else { return nil }
+
+        return CurrentDayTemperatureRange(
+            minimumCelsiusTemperature: Int(minimum.rounded()),
+            maximumCelsiusTemperature: Int(maximum.rounded())
+        )
     }
 }
 
