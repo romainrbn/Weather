@@ -36,7 +36,7 @@ struct FavouritesEmptyView: View {
             VStack(spacing: .spacing100) {
                 Text("Add favourites by searching a city in the field above.")
 
-                if CLLocationManager().authorizationStatus == .notDetermined {
+                if CLLocationManager().authorizationStatus != .denied {
                     Text("- or -")
                         .foregroundStyle(.tertiary)
                         .font(.caption2)

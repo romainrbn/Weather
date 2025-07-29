@@ -29,7 +29,7 @@ final class UserPreferredUnitConverter {
             return formatter.string(from: measurement)
         case .systemDefault:
             if UserPreferredTemperatureUnit.defaultForCurrentLocale == .systemDefault {
-                assert(false, "Should not happen!")
+                assertionFailure("Should not happen!")
                 return "-"
             }
             return formatValue(

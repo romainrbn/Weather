@@ -19,6 +19,7 @@ final class FavouritesPresenter {
         var favouriteDTOs: [FavouriteItemDTO] = []
         var currentItems: [FavouriteViewDescriptor] = []
         var searchQuery: String = ""
+        var shouldDisplayLocationButton: Bool = true
 
         @UserDefault(Constants.lastUpdateUserDefaultKey, defaultValue: Date.now)
         var lastUpdate: Date
@@ -26,7 +27,6 @@ final class FavouritesPresenter {
 
     private let dependencies: FavouriteDependencies
     private let itemsRefresher: FavouriteWeatherRefresher
-
     private let contentMapper: FavouritesViewContentMapper
 
     private(set) weak var viewContract: FavouritesViewContract?
@@ -44,11 +44,11 @@ final class FavouritesPresenter {
         self.dependencies = dependencies
         self.viewContract = viewContract
         self.itemsRefresher = FavouriteWeatherRefresher(store: dependencies.favouriteStore)
-
         self.contentMapper = FavouritesViewContentMapper(preferencesRepository: dependencies.preferencesRepository)
 
         registerToNotifications()
         observeFavouritesStream()
+        state.shouldDisplayLocationButton = !dependencies.locationManager.hasGrantedPermission
     }
 
     deinit {
@@ -130,21 +130,38 @@ final class FavouritesPresenter {
 
     @MainActor
     func didTapUseCurrentLocationButton() {
-
+        defer {
+            state.shouldDisplayLocationButton = false
+            updateView()
+        }
+        dependencies.locationManager.requestLocation { [weak self] requestResult in
+            guard let self else { return }
+            switch requestResult {
+            case .success(let location):
+                findAndOpenCurrentLocation(from: location, isCurrentLocation: true)
+            case .failure(let error):
+                switch error {
+                case .locationNotFound:
+                    viewContract?.displayError(errorMessage: "Unable to determine your location for now. Please try again.")
+                case .permissionDenied:
+                    break
+                }
+            }
+        }
     }
 
     @MainActor
-    func didTapSearchResult(_ result: MKMapItem) {
-        guard let timeZone = result.timeZone,
-              let locality = result.placemark.locality,
-              let identifier = result.placemark.identifier
+    func showPlacemark(_ result: CLPlacemark, timeZone: TimeZone?, isCurrentLocation: Bool = false) {
+        guard let timeZone,
+              let locality = result.locality,
+              let identifier = result.identifier,
+              let latitude = result.location?.coordinate.latitude,
+              let longitude = result.location?.coordinate.longitude
         else {
             viewContract?.displayError(errorMessage: "Invalid place. Please try again later")
             return
         }
 
-        let latitude = result.placemark.coordinate.latitude
-        let longitude = result.placemark.coordinate.longitude
         let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.latitude == latitude && $0.longitude == longitude })
 
         var dto = FavouriteItemDTO(
@@ -152,6 +169,7 @@ final class FavouritesPresenter {
             latitude: latitude,
             longitude: longitude,
             timezone: timeZone,
+            isCurrentLocation: isCurrentLocation,
             locationName: locality,
             isFavourite: isAlreadyFavourite,
             currentWeather: nil,
@@ -248,6 +266,23 @@ final class FavouritesPresenter {
         )
 
         viewContract?.present(module.viewController, animated: true)
+    }
+
+    private func findAndOpenCurrentLocation(from coordinates: CLLocationCoordinate2D, isCurrentLocation: Bool = false) {
+        Task(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
+            do {
+                let placemark = try await dependencies.locationManager.getPlacemark(from: coordinates)
+
+                await MainActor.run {
+                    self.showPlacemark(placemark, timeZone: placemark.timeZone, isCurrentLocation: isCurrentLocation)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
+                }
+            }
+        }
     }
 
     // MARK: - Observation

@@ -30,7 +30,7 @@ enum UserPreferredTemperatureUnit: Int, CaseIterable {
         case .fahrenheit:
             return "°F"
         case .systemDefault:
-            assert(false, "Not applicable - Should not happen.")
+            assertionFailure("Not applicable - Should not happen.")
             return "-"
         }
     }

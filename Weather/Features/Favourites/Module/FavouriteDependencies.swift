@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 /// - Note: In a production-scale app, this layer would benefit from a more modular architecture,
 /// using protocol-based dependency injection and dedicated modules per feature to ensure clearer separation between business logic and UI concerns.
@@ -17,4 +18,5 @@ struct FavouriteDependencies {
     let favouriteStore: FavouriteStore
     let forecastStore: ForecastStore
     let preferencesRepository: UserPreferencesRepository
+    let locationManager: LocationManager
 }

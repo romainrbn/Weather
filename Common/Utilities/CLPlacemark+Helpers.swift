@@ -1,13 +1,13 @@
 //
-//  MKPlacemark+Helpers.swift
+//  CLPlacemark+Helpers.swift
 //  Weather
 //
 //  Created by Romain Rabouan on 7/29/25.
 //
 
-import MapKit
+import CoreLocation
 
-extension MKPlacemark {
+extension CLPlacemark {
     /// We need to identify a place uniquely.
     /// For example, if the user is in London and already has London as a favourite,
     /// we do not want to display the same item twice.

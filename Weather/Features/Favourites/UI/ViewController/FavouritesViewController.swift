@@ -250,7 +250,7 @@ extension FavouritesViewController: CitySearchResultsControllerDelegate {
         searchController.searchBar.text = ""
         presenter?.state.searchQuery = ""
         searchResultsController.dismiss(animated: true)
-        presenter?.didTapSearchResult(city)
+        presenter?.showPlacemark(city.placemark, timeZone: city.timeZone)
     }
 
     func retryQuery() {

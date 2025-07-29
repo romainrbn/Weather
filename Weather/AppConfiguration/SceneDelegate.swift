@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -27,7 +28,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 forecastStore: LiveForecastStore(
                     repository: LiveForecastRemoteRepository()
                 ),
-                preferencesRepository: UserPreferencesRepository()
+                preferencesRepository: UserPreferencesRepository(),
+                locationManager: LocationManager()
             )
         )
         self.favouritesModule = favouritesModule

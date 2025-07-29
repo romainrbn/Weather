@@ -12,6 +12,7 @@ struct FavouriteItemDTO: Hashable {
     let latitude: Double
     let longitude: Double
     let timezone: TimeZone
+    let isCurrentLocation: Bool
     var sortOrder: Int?
     var locationName: String
     var isFavourite: Bool
@@ -23,6 +24,7 @@ struct FavouriteItemDTO: Hashable {
         latitude: Double,
         longitude: Double,
         timezone: TimeZone,
+        isCurrentLocation: Bool = false,
         sortOrder: Int? = nil,
         locationName: String,
         isFavourite: Bool,
@@ -33,6 +35,7 @@ struct FavouriteItemDTO: Hashable {
         self.latitude = latitude
         self.longitude = longitude
         self.timezone = timezone
+        self.isCurrentLocation = isCurrentLocation
         self.sortOrder = sortOrder
         self.locationName = locationName
         self.isFavourite = isFavourite

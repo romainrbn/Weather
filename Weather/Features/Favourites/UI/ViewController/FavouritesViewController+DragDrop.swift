@@ -43,7 +43,8 @@ extension FavouritesViewController: UICollectionViewDragDelegate, UICollectionVi
 
         dataSource.content = FavouritesViewContent(
             items: currentItems,
-            formattedLastUpdate: FavouritesViewContentMapper.formatLastUpdateDate(presenter.state.lastUpdate)
+            formattedLastUpdate: FavouritesViewContentMapper.formatLastUpdateDate(presenter.state.lastUpdate),
+            shouldDisplayLocationButton: presenter.state.shouldDisplayLocationButton
         )
 
         coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)

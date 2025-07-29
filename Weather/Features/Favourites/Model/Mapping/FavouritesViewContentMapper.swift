@@ -25,7 +25,8 @@ struct FavouritesViewContentMapper {
     ) -> FavouritesViewContent {
         FavouritesViewContent(
             items: buildFavouriteItems(from: state.favouriteDTOs),
-            formattedLastUpdate: Self.formatLastUpdateDate(state.lastUpdate)
+            formattedLastUpdate: Self.formatLastUpdateDate(state.lastUpdate),
+            shouldDisplayLocationButton: state.shouldDisplayLocationButton
         )
     }
 
@@ -71,7 +72,7 @@ struct FavouritesViewContentMapper {
         return FavouriteViewDescriptor(
             identifier: favouriteItem.identifier,
             locationName: favouriteItem.locationName,
-            isCurrentLocation: false,
+            isCurrentLocation: favouriteItem.isCurrentLocation,
             localFormattedTime: formattedCurrentTime(in: favouriteItem.timezone),
             formattedCurrentTemperature: formattedTemperature(value: currentWeather.celsiusTemperature),
             formattedCurrentConditions: currentWeather.conditionName.capitalized,

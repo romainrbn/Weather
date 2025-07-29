@@ -20,7 +20,8 @@ final class FavouritesViewDataSource {
         didSet {
             guard content != oldValue else { return }
             var snapshot = currentSnapshot
-            if content.formattedLastUpdate != oldValue.formattedLastUpdate && snapshot.sectionIdentifiers.contains(.favourites) {
+            if snapshot.sectionIdentifiers.contains(.favourites),
+               content.formattedLastUpdate != oldValue.formattedLastUpdate || content.shouldDisplayLocationButton != oldValue.shouldDisplayLocationButton {
                 snapshot.reloadSections([.favourites])
             }
             diffableDataSource.apply(snapshot)
@@ -67,7 +68,7 @@ final class FavouritesViewDataSource {
             case FavouritesViewLayoutBuilder.SupplementaryElementKind.headerElementKind, UICollectionView.elementKindSectionHeader:
                 return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
             default:
-                assert(false, "This supplementary is not handled. Please handle it.")
+                assertionFailure("This supplementary is not handled. Please handle it.")
                 return nil
             }
         }
@@ -120,7 +121,16 @@ extension FavouritesViewDataSource {
                 let section = diffableDataSource.sectionIdentifier(for: indexPath.section)
             else { return }
 
-            cell.content = .init(title: section.title, subtitle: content.formattedLastUpdate)
+            cell.content = TitleSupplementaryView.Content(
+                title: section.title,
+                subtitle: content.formattedLastUpdate,
+                shouldDisplayLocationButton: content.shouldDisplayLocationButton,
+                locationButtonImage: content.locationButtonImage,
+                locationButtonTitle: content.locationButtonTitle
+            )
+            cell.behaviours = TitleSupplementaryView.Behaviours(didTapLocationButton: {
+                self.presenter?.didTapUseCurrentLocationButton()
+            })
         }
     }
 }
