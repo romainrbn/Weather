@@ -20,6 +20,8 @@ final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObje
 
     private var locationCompletion: ((Result<CLLocationCoordinate2D, LocationManagerError>) -> Void)?
 
+    var currentLocation: CLLocation?
+
     private(set) var hasGrantedPermission: Bool
 
     @Published var authorizationStatus: CLAuthorizationStatus?
@@ -75,6 +77,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObje
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        self.currentLocation = locations.first
         guard let completion = locationCompletion else { return }
 
         defer { locationCompletion = nil }

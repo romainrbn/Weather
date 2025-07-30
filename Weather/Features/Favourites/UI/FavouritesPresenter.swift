@@ -71,7 +71,12 @@ final class FavouritesPresenter {
             guard let self else { return }
 
             do {
-                let favourites = try await dependencies.favouriteStore.fetchFavourites()
+                var favourites = try await dependencies.favouriteStore.fetchFavourites()
+
+                if let currentPositionItem = try await loadCurrentPositionItem() {
+                    updateExistingFavouritesIfNeeded(newItem: currentPositionItem, favourites: &favourites)
+                }
+
                 state.favouriteDTOs = favourites
             } catch {
                 await MainActor.run {
@@ -112,10 +117,66 @@ final class FavouritesPresenter {
         dependencies.citySearchService.debounceSearch(query: query, onResults: completion)
     }
 
+    // MARK: - Update View
+
     private func updateView() {
         let newContent = contentMapper.map(state)
         state.currentItems = newContent.items
         viewContract?.display(newContent)
+    }
+
+    // MARK: - Current Position
+
+    func didTapUseCurrentLocationButton() {
+        defer {
+            state.shouldDisplayLocationButton = false
+            updateView()
+        }
+        dependencies.locationManager.requestLocation { [weak self] requestResult in
+            guard let self else { return }
+            switch requestResult {
+            case .success(let location):
+                dependencies.preferencesRepository.shouldDisplayCurrentLocation = true
+                findAndOpenCurrentLocation(from: location, isCurrentLocation: true)
+            case .failure(let error):
+                dependencies.preferencesRepository.shouldDisplayCurrentLocation = false
+                switch error {
+                case .locationNotFound:
+                    viewContract?.displayError(errorMessage: "Unable to determine your location for now. Please try again.")
+                case .permissionDenied:
+                    break
+                }
+            }
+        }
+    }
+
+    private func updateExistingFavouritesIfNeeded(newItem: FavouriteItemDTO, favourites: inout [FavouriteItemDTO]) {
+        if favourites.isEmpty == false {
+            if let existingItemIndex = favourites.firstIndex(where: { $0.identifier == newItem.identifier }) {
+                favourites[existingItemIndex] = newItem
+            } else {
+                favourites.insert(newItem, at: 0)
+            }
+        } else {
+            favourites.append(newItem)
+        }
+    }
+
+    private func loadCurrentPositionItem() async throws -> FavouriteItemDTO? {
+        guard
+            dependencies.preferencesRepository.shouldDisplayCurrentLocation,
+            dependencies.locationManager.hasGrantedPermission,
+            let currentLocation = dependencies.locationManager.currentLocation?.coordinate
+        else {
+            return nil
+        }
+
+        let placemark = try await dependencies.locationManager.getPlacemark(from: CLLocationCoordinate2D(
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude
+        ))
+
+        return try await createItem(from: placemark, timeZone: .current, isCurrentLocation: true)
     }
 
     // MARK: - User Actions
@@ -127,36 +188,36 @@ final class FavouritesPresenter {
         presentForecast(associatedDTO: associatedDTO)
     }
 
-    func didTapUseCurrentLocationButton() {
-        defer {
-            state.shouldDisplayLocationButton = false
-            updateView()
-        }
-        dependencies.locationManager.requestLocation { [weak self] requestResult in
+    func showPlacemark(_ placemark: CLPlacemark, timeZone: TimeZone?, isCurrentLocation: Bool = false) {
+        Task(priority: .userInitiated) { [weak self] in
             guard let self else { return }
-            switch requestResult {
-            case .success(let location):
-                findAndOpenCurrentLocation(from: location, isCurrentLocation: true)
-            case .failure(let error):
-                switch error {
-                case .locationNotFound:
-                    viewContract?.displayError(errorMessage: "Unable to determine your location for now. Please try again.")
-                case .permissionDenied:
-                    break
+
+            do {
+                if let item = try await createItem(from: placemark, timeZone: timeZone, isCurrentLocation: isCurrentLocation) {
+                    state.lastUpdate = .now
+
+                    await MainActor.run {
+                        self.presentForecast(associatedDTO: item)
+                        self.updateView()
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewContract?.displayError(errorMessage: error.message)
                 }
             }
         }
     }
 
-    func showPlacemark(_ result: CLPlacemark, timeZone: TimeZone?, isCurrentLocation: Bool = false) {
+    private func createItem(from placemark: CLPlacemark, timeZone: TimeZone?, isCurrentLocation: Bool) async throws -> FavouriteItemDTO? {
         guard let timeZone,
-              let locality = result.locality,
-              let identifier = result.identifier,
-              let latitude = result.location?.coordinate.latitude,
-              let longitude = result.location?.coordinate.longitude
+              let locality = placemark.locality,
+              let identifier = placemark.identifier,
+              let latitude = placemark.location?.coordinate.latitude,
+              let longitude = placemark.location?.coordinate.longitude
         else {
             viewContract?.displayError(errorMessage: "Invalid place. Please try again later")
-            return
+            return nil
         }
 
         let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.identifier == identifier })
@@ -172,22 +233,8 @@ final class FavouritesPresenter {
             currentWeather: nil
         )
 
-        Task(priority: .userInitiated) { [weak self] in
-            guard let self else { return }
-            do {
-                dto = try await itemsRefresher.refresh(dto)
-                state.lastUpdate = .now
-
-                await MainActor.run {
-                    self.presentForecast(associatedDTO: dto)
-                    self.updateView()
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewContract?.displayError(errorMessage: error.message)
-                }
-            }
-        }
+        dto = try await itemsRefresher.refresh(dto)
+        return dto
     }
 
     func didTapSettingsButton() {

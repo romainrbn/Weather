@@ -46,7 +46,7 @@ struct LiveForecastStore: ForecastStore {
         currentWeather: WeatherReport
     ) async throws -> ForecastDTO {
         let apiModel = try await repository.loadForecast(latitude: latitude, longitude: longitude)
-        return WSForecastConverter.convert(
+        return APIForecastConverter.convert(
             cityName: cityName,
             currentWeather: currentWeather,
             wsForecast: apiModel

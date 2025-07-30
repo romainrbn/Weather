@@ -10,6 +10,7 @@ import Foundation
 final class UserPreferencesRepository {
     private enum Keys {
         static let temperatureUnit = "user_preferred_temperature_unit"
+        static let shouldDisplayCurrentLocation = "should_display_current_location"
     }
 
     private let defaults: UserDefaults
@@ -26,6 +27,15 @@ final class UserPreferencesRepository {
         set {
             defaults.set(newValue.rawValue, forKey: Keys.temperatureUnit)
             NotificationCenter.default.post(name: .didReloadUserPreferredUnit, object: nil)
+        }
+    }
+
+    var shouldDisplayCurrentLocation: Bool {
+        get {
+            return defaults.bool(forKey: Keys.shouldDisplayCurrentLocation)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.shouldDisplayCurrentLocation)
         }
     }
 }

@@ -40,7 +40,7 @@ struct UserPreferencesView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveUnit()
+                        save()
                     }
                     .disabled(selectedUnit == initialUnit)
                 }
@@ -48,7 +48,7 @@ struct UserPreferencesView: View {
         }
     }
 
-    private func saveUnit() {
+    private func save() {
         userPreferences.preferredTemperatureUnit = selectedUnit
         dismiss()
     }
