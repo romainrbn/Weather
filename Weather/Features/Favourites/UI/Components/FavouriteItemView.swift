@@ -51,8 +51,20 @@ struct FavouriteItemView: View {
 
     private var locationTitleView: some View {
         VStack(alignment: .leading) {
-            Text(item.locationName)
-                .font(.title3.bold())
+            Group {
+                if item.isCurrentLocation {
+                    HStack(spacing: .spacing100) {
+                        Image(systemName: "location.fill")
+                            .imageScale(.small)
+                        Text(item.locationName)
+                            .font(.title3.bold())
+                    }
+                } else {
+                    Text(item.locationName)
+                        .font(.title3.bold())
+                }
+            }
+            .foregroundStyle(.primary)
 
             Text(item.localFormattedTime)
                 .font(.caption)
