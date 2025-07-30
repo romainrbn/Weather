@@ -37,6 +37,14 @@ Xcode's environment values could have been used, but we lose them as soon as we 
 
 ♿️ Accessibility in mind
 
+
+<table>
+  <tr>
+    <td><img src="README_Assets/interaction.gif" alt="Preview forecast detail" width="200"/></td>
+    <td><img src="README_Assets/reorder-items.gif" alt="Reorder items" width="200"/></td>
+  </tr>
+</table>
+
 ## Tech
 
 🖼️ Modern UIKit techniques (DiffableDataSource, CompositionalLayout...)
