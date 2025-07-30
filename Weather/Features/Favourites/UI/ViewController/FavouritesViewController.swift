@@ -16,7 +16,7 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
         collectionView: collectionView,
         presenter: presenter
     )
-    private lazy var searchResultsController: CitySearchResultsController = createSearchResultsController()
+    private lazy var citySearchResultsController: CitySearchResultsController = createSearchResultsController()
     private lazy var searchController: UISearchController = createSearchController()
     private lazy var emptyStateView = createEmptyView()
 
@@ -33,12 +33,16 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
         setup()
         presenter?.loadData()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
         #if DEBUG
         if Secret.apiKey == Secret.noApiKeyValue {
-            displayError(
-                errorMessage: """
-                🔑 Missing API Key! Please configure it in OPENWEATHERMAP_APIKEY User-Defined build setting.
+            displayError(errorMessage:
+                """
+                🔑 Missing API Key! Please configure it in the OPENWEATHERMAP_APIKEY User-Defined build setting.
                 For setup instructions, see the README.md file in the project root.
                 """
             )
@@ -74,13 +78,11 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
 
     func performCitySearch(_ query: String) {
         presenter?.searchCity(query) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let cities):
-                    self?.searchResultsController.results = cities
-                case .failure(let error):
-                    self?.searchResultsController.error = error
-                }
+            switch result {
+            case .success(let cities):
+                self?.citySearchResultsController.results = cities
+            case .failure(let error):
+                self?.citySearchResultsController.error = error
             }
         }
     }
@@ -148,7 +150,7 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     }
 
     private func createSearchController() -> UISearchController {
-        let controller = UISearchController(searchResultsController: searchResultsController)
+        let controller = UISearchController(searchResultsController: citySearchResultsController)
         controller.searchResultsUpdater = self
         controller.delegate = self
         controller.obscuresBackgroundDuringPresentation = true
@@ -249,7 +251,7 @@ extension FavouritesViewController: CitySearchResultsControllerDelegate {
     func didSelectCity(_ city: MKMapItem) {
         searchController.searchBar.text = ""
         presenter?.state.searchQuery = ""
-        searchResultsController.dismiss(animated: true)
+        citySearchResultsController.dismiss(animated: true)
         presenter?.showPlacemark(city.placemark, timeZone: city.timeZone)
     }
 

@@ -82,7 +82,7 @@ struct FavouritesViewContentMapper {
             conditionSymbolColorRepresentation: .init(
                 primaryColor: currentWeather.condition.primaryColor,
                 secondaryColor: currentWeather.condition.secondaryColor,
-                teriaryColor: currentWeather.condition.teriaryColor
+                tertiaryColor: currentWeather.condition.tertiaryColor
             )
         )
     }
@@ -111,18 +111,18 @@ extension WeatherCondition {
         let associatedSystemSymbolName: String
         let primaryColor: Color
         let secondaryColor: Color?
-        let teriaryColor: Color?
+        let tertiaryColor: Color?
 
         init(
             associatedSystemSymbolName: String,
             primaryColor: Color,
             secondaryColor: Color? = nil,
-            teriaryColor: Color? = nil
+            tertiaryColor: Color? = nil
         ) {
             self.associatedSystemSymbolName = associatedSystemSymbolName
             self.primaryColor = primaryColor
             self.secondaryColor = secondaryColor
-            self.teriaryColor = teriaryColor
+            self.tertiaryColor = tertiaryColor
         }
     }
 
@@ -141,9 +141,9 @@ extension WeatherCondition {
         case .snow:
             Model(associatedSystemSymbolName: "cloud.snow.fill", primaryColor: .gray, secondaryColor: .blue)
         case .atmosphere:
-            Model(associatedSystemSymbolName: "sun.dust.fill", primaryColor: .orange, secondaryColor: .yellow) // TODO: map more
+            Model(associatedSystemSymbolName: "sun.dust.fill", primaryColor: .orange, secondaryColor: .yellow)
         case .unknown:
-            Model(associatedSystemSymbolName: "cloud.sun.rain.fill", primaryColor: .gray, secondaryColor: .yellow, teriaryColor: .blue)
+            Model(associatedSystemSymbolName: "cloud.sun.rain.fill", primaryColor: .gray, secondaryColor: .yellow, tertiaryColor: .blue)
         }
     }
 
@@ -159,7 +159,7 @@ extension WeatherCondition {
         model.secondaryColor ?? model.primaryColor
     }
 
-    var teriaryColor: Color {
-        model.teriaryColor ?? secondaryColor
+    var tertiaryColor: Color {
+        model.tertiaryColor ?? secondaryColor
     }
 }

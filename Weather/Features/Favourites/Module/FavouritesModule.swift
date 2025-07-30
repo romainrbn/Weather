@@ -11,6 +11,7 @@ import UIKit
 ///
 /// In a more complex app, this module (and the dependencies) would be the only objects exposed publicly,
 /// letting the view controller and presenter internal to the feature's module.
+@MainActor
 struct FavouritesModule {
     private(set) var viewController: FavouritesViewController
     private var presenter: FavouritesPresenter

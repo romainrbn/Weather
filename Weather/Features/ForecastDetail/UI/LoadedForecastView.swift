@@ -210,7 +210,7 @@ struct LoadedForecastView: View {
             .foregroundStyle(
                 symbolDescription.colorRepresentation.primaryColor,
                 symbolDescription.colorRepresentation.secondaryColor,
-                symbolDescription.colorRepresentation.teriaryColor
+                symbolDescription.colorRepresentation.tertiaryColor
             )
             .frame(width: size, height: size)
     }

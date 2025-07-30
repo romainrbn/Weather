@@ -57,8 +57,13 @@ class FetchRequest<Converter: DTOConverter> {
 
     func execute() async throws -> [DTO] {
         try await context.perform { [weak self] in
-            guard let self else { return [] }
-            let request = NSFetchRequest<Entity>(entityName: String(describing: Entity.self))
+            guard
+                let self,
+                let name = Entity.entity().name
+            else {
+                return []
+            }
+            let request = NSFetchRequest<Entity>(entityName: name)
             request.predicate = predicate
             request.sortDescriptors = sortDescriptors
             if let fetchLimit {

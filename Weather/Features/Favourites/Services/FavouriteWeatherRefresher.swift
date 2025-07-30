@@ -15,7 +15,6 @@ struct FavouriteWeatherRefresher {
         self.store = store
     }
 
-    /// Refreshes one favourite item by fetching its weather and applying it.
     func refresh(_ item: FavouriteItemDTO) async throws -> FavouriteItemDTO {
         let data = try await store.loadWeatherData(
             latitude: item.latitude,
@@ -26,7 +25,6 @@ struct FavouriteWeatherRefresher {
         return copy
     }
 
-    /// Refreshes a batch of items.
     func refresh(_ items: [FavouriteItemDTO]) async throws -> [FavouriteItemDTO] {
         try await withThrowingTaskGroup(
             of: (Int, FavouriteItemDTO).self,

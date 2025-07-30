@@ -9,6 +9,14 @@ import Foundation
 
 struct ForecastViewDescriptorMapper {
 
+    private let shortTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        formatter.locale = .autoupdatingCurrent
+        return formatter
+    }()
+
     private let preferencesRepository: UserPreferencesRepository
 
     init(preferencesRepository: UserPreferencesRepository) {
@@ -108,7 +116,7 @@ struct ForecastViewDescriptorMapper {
             colorRepresentation: .init(
                 primaryColor: report.condition.primaryColor,
                 secondaryColor: report.condition.secondaryColor,
-                teriaryColor: report.condition.teriaryColor
+                tertiaryColor: report.condition.tertiaryColor
             )
         )
     }
@@ -116,12 +124,7 @@ struct ForecastViewDescriptorMapper {
     // MARK: - Formatters
 
     private func formattedTime(from date: Date, in timeZone: TimeZone) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        formatter.dateStyle = .none
-        formatter.timeZone = timeZone
-        formatter.locale = .autoupdatingCurrent
-        return formatter.string(from: date)
+        return shortTimeFormatter.string(from: date)
     }
 
     private func formattedDay(from date: Date, in timeZone: TimeZone) -> String {

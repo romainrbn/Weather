@@ -14,6 +14,7 @@ private enum Constants {
     static let lastUpdateUserDefaultKey: String = "lastUpdate"
 }
 
+@MainActor
 final class FavouritesPresenter {
     struct State {
         var favouriteDTOs: [FavouriteItemDTO] = []
@@ -111,7 +112,6 @@ final class FavouritesPresenter {
         dependencies.citySearchService.debounceSearch(query: query, onResults: completion)
     }
 
-    @MainActor
     private func updateView() {
         let newContent = contentMapper.map(state)
         state.currentItems = newContent.items
@@ -120,7 +120,6 @@ final class FavouritesPresenter {
 
     // MARK: - User Actions
 
-    @MainActor
     func didSelectItem(_ item: FavouriteViewDescriptor) {
         guard let associatedDTO = state.favouriteDTOs.first(where: { $0.identifier == item.identifier }) else {
             return
@@ -128,7 +127,6 @@ final class FavouritesPresenter {
         presentForecast(associatedDTO: associatedDTO)
     }
 
-    @MainActor
     func didTapUseCurrentLocationButton() {
         defer {
             state.shouldDisplayLocationButton = false
@@ -150,7 +148,6 @@ final class FavouritesPresenter {
         }
     }
 
-    @MainActor
     func showPlacemark(_ result: CLPlacemark, timeZone: TimeZone?, isCurrentLocation: Bool = false) {
         guard let timeZone,
               let locality = result.locality,
@@ -193,7 +190,6 @@ final class FavouritesPresenter {
         }
     }
 
-    @MainActor
     func didTapSettingsButton() {
         viewContract?.present(
             UIHostingController(rootView: UserPreferencesView(userPreferences: dependencies.preferencesRepository)),
@@ -202,16 +198,19 @@ final class FavouritesPresenter {
     }
 
     /// Force refresh the data when the user has pulled to refresh
-    @MainActor
     func didPullToRefresh() {
         refreshData()
     }
 
-    @MainActor
     func reorderFavourites(newOrder: [FavouriteViewDescriptor]) {
         let identifiers = newOrder.map(\.identifier)
         let reorderedDTOs = identifiers.compactMap { id in
             state.favouriteDTOs.first(where: { $0.identifier == id })
+        }
+
+        guard reorderedDTOs.count == state.favouriteDTOs.count else {
+            Log.log("Reorder failed: mismatch between new order and current favourites.")
+            return
         }
 
         state.favouriteDTOs = reorderedDTOs
@@ -231,7 +230,6 @@ final class FavouritesPresenter {
         }
     }
 
-    @MainActor
     func removeFavourite(_ item: FavouriteViewDescriptor) {
         guard
             let associatedDTO = state.favouriteDTOs.first(
@@ -244,6 +242,7 @@ final class FavouritesPresenter {
         Task(priority: .userInitiated) { [weak self] in
             do {
                 try await self?.dependencies.favouriteStore.removeFavourite(associatedDTO)
+                UIAccessibility.post(notification: .announcement, argument: "\(item.locationName) removed.")
             } catch {
                 await MainActor.run {
                     self?.viewContract?.displayError(errorMessage: error.message)
@@ -252,8 +251,22 @@ final class FavouritesPresenter {
         }
     }
 
-    @MainActor
-    private func presentForecast(associatedDTO: FavouriteItemDTO) {
+    func createForecastViewController(itemIdentifier: String) -> UIViewController? {
+        guard let associatedItem = state.favouriteDTOs.first(where: { $0.identifier == itemIdentifier }) else {
+            return nil
+        }
+
+        return createForecastViewController(associatedDTO: associatedItem)
+    }
+
+    func presentForecast(itemIdentifier: String) {
+        guard let viewController = createForecastViewController(itemIdentifier: itemIdentifier) else {
+            return
+        }
+        viewContract?.present(viewController, animated: true)
+    }
+
+    private func createForecastViewController(associatedDTO: FavouriteItemDTO) -> UIViewController {
         let module = ForecastDetailModule(
             input: ForecastDetailInput(
                 associatedItem: associatedDTO
@@ -264,8 +277,11 @@ final class FavouritesPresenter {
                 preferencesRepository: dependencies.preferencesRepository
             )
         )
+        return module.viewController
+    }
 
-        viewContract?.present(module.viewController, animated: true)
+    private func presentForecast(associatedDTO: FavouriteItemDTO) {
+        viewContract?.present(createForecastViewController(associatedDTO: associatedDTO), animated: true)
     }
 
     private func findAndOpenCurrentLocation(from coordinates: CLLocationCoordinate2D, isCurrentLocation: Bool = false) {
@@ -351,7 +367,6 @@ final class FavouritesPresenter {
     }
 
     @objc
-    @MainActor
     private func refreshDataOnEnterForeground() {
         guard Date.now.timeIntervalSince(state.lastUpdate) > Constants.minimumTimeBetweenSessionsToRefreshData else {
             // Avoid making too many API requests if the user exits/comes back to the app often

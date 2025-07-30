@@ -32,7 +32,8 @@ extension FavouritesViewController: UICollectionViewDragDelegate, UICollectionVi
             let item = coordinator.items.first,
             let sourceIndexPath = item.sourceIndexPath,
             let destinationIndexPath = coordinator.destinationIndexPath,
-            let draggedItem = item.dragItem.localObject as? FavouriteViewDescriptor
+            let draggedItem = item.dragItem.localObject as? FavouriteViewDescriptor,
+            sourceIndexPath != destinationIndexPath
         else {
             return
         }
@@ -70,9 +71,13 @@ extension FavouritesViewController {
     ) -> UIContextMenuConfiguration? {
         let item = dataSource.content.items[indexPath.item]
 
+        guard let presenter else { return nil }
+
         return UIContextMenuConfiguration(
             identifier: indexPath as NSCopying,
-            previewProvider: nil
+            previewProvider: {
+                presenter.createForecastViewController(itemIdentifier: item.identifier)
+            }
         ) { _ in
             let removeAction = UIAction(
                 title: "Remove Favourite",
@@ -83,6 +88,22 @@ extension FavouritesViewController {
             }
 
             return UIMenu(title: item.locationName, children: [removeAction])
+        }
+    }
+
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+        animator: any UIContextMenuInteractionCommitAnimating
+    ) {
+        guard
+            let indexPath = configuration.identifier as? IndexPath,
+            let item = dataSource.content.items[safe: indexPath.item]
+        else { return }
+
+        animator.preferredCommitStyle = .pop
+        animator.addCompletion { [weak self] in
+            self?.presenter?.presentForecast(itemIdentifier: item.identifier)
         }
     }
 }

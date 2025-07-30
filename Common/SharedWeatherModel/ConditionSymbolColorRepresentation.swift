@@ -10,5 +10,5 @@ import SwiftUI
 struct ConditionSymbolColorRepresentation: Hashable {
     let primaryColor: Color
     let secondaryColor: Color
-    let teriaryColor: Color
+    let tertiaryColor: Color
 }

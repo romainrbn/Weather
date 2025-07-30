@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import TipKit
 import SwiftUI
 
 /// This code could be integrated directly into `FavouritesViewController`.
