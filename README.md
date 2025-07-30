@@ -27,9 +27,9 @@ Xcode's environment values could have been used, but we lose them as soon as we 
 
 ## Features
 
-❤️ Feature-rich favourites view in UIKit, with swipe actions, list reordering, peek-and-pop gestures and UISearchController
+❤️ Feature-rich favourites view in UIKit, with swipe actions, list reordering, peek-and-pop gestures and `UISearchController`
 
-⛈️ SwiftUI forecast view, taking advantage of modern APIs and animations, such as ScrollViewReader
+⛈️ SwiftUI forecast view, taking advantage of modern APIs and animations, such as `ScrollViewReader`
 
 📍 The user can display the weather in it's current location
 
@@ -47,9 +47,8 @@ Xcode's environment values could have been used, but we lose them as soon as we 
 
 ## Tech
 
-🖼️ Modern UIKit techniques (DiffableDataSource, CompositionalLayout...)
-
-🎨 Mixing SwiftUI and UIKit with performance in mind (UIHostingConfiguration for collection views...)
+🖼️ Modern UIKit techniques, like `UICollectionViewDiffableDataSource` for smooth data updates and animations
+🎨 Mixing SwiftUI and UIKit with performance in mind (`UIHostingConfiguration` for collection views...)
 
 ## Performance
 
@@ -60,4 +59,4 @@ When searching a city, displaying the forecast and adding it as a favourite, the
 ## Possible improvements
 
 - Add Widgets, or even a watchOS app displaying the favourites, with a complication
-- Add other languages, even though the app gets some localized strings for free (DateFormatter, MeasurementFormatter, AM/PM - 24h dates...)
+- Add other languages, even though the app gets some localized strings for free (`DateFormatter`, `MeasurementFormatter`, AM/PM - 24h dates...)
