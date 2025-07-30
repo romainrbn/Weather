@@ -162,7 +162,7 @@ final class FavouritesPresenter {
             return
         }
 
-        let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.latitude == latitude && $0.longitude == longitude })
+        let isAlreadyFavourite = state.favouriteDTOs.contains(where: { $0.identifier == identifier })
 
         var dto = FavouriteItemDTO(
             identifier: identifier,
