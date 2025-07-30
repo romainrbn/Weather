@@ -19,6 +19,9 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     private lazy var citySearchResultsController: CitySearchResultsController = createSearchResultsController()
     private lazy var searchController: UISearchController = createSearchController()
     private lazy var emptyStateView = createEmptyView()
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
+
+    private var isInitialLoadInProgress = false
 
     weak var presenter: FavouritesPresenter?
 
@@ -32,6 +35,9 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
         collectionView.dropDelegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
         setup()
+
+        loadingIndicator.startAnimating()
+
         presenter?.loadData()
     }
 
@@ -53,10 +59,16 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     // MARK: - FavouritesViewContract conformance
 
     func display(_ content: FavouritesViewContent) {
+        if isInitialLoadInProgress {
+            isInitialLoadInProgress = false
+            loadingIndicator.stopAnimating()
+        }
+
         dataSource.content = content
 
         let hasData = !content.items.isEmpty
         emptyStateView.isHidden = hasData
+        loadingIndicator.isHidden = true
 
         if #available(iOS 17.4, *) {
             collectionView.bouncesVertically = hasData
@@ -111,11 +123,13 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     }
 
     private func buildViewHierarchy() {
+        view.addSubview(loadingIndicator)
         view.addSubview(collectionView)
     }
 
     private func setConstraints() {
         collectionView.constrainEdges(to: view)
+        loadingIndicator.center(in: view)
     }
 
     // MARK: Content creation
@@ -159,11 +173,13 @@ final class FavouritesViewController: UICollectionViewController, FavouritesView
     }
 
     private func createEmptyView() -> HostingView<FavouritesEmptyView> {
-        HostingView(
+        let view = HostingView(
             rootView: FavouritesEmptyView(onUseCurrentLocationTapped: { [weak self] in
                 self?.presenter?.didTapUseCurrentLocationButton()
             })
         )
+        view.isHidden = true
+        return view
     }
 
     private func setupEmptyBackgroundView() {
