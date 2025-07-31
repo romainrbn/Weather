@@ -33,10 +33,10 @@ struct FavouriteItemDTOTests {
 
         #expect(dto.currentWeather == WeatherReport(
             celsiusTemperature: 20,
-            feelsLikeTemperature: nil,
+            feelsLikeTemperature: 20,
             condition: .clear,
-            temperatureRanges: nil,
-            conditionName: "Clear"
+            temperatureRanges: .init(minimumCelsiusTemperature: 12, maximumCelsiusTemperature: 23),
+            conditionName: "clear sky"
         ))
 
         #expect(dto.currentWeather?.temperatureRanges == CurrentDayTemperatureRange(

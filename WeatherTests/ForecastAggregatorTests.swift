@@ -30,7 +30,7 @@ struct ForecastAggregatorTests {
         #expect(result.hourly.count == 1)
         #expect(result.daily.count == 1)
 
-        let expectedReport = WeatherReport(
+        let expectedHourlyReport = WeatherReport(
             celsiusTemperature: Int(temperature.rounded()),
             feelsLikeTemperature: nil,
             condition: .clear,
@@ -38,8 +38,16 @@ struct ForecastAggregatorTests {
             conditionName: "Clear"
         )
 
-        #expect(result.hourly[0].report == expectedReport)
-        #expect(result.daily[0].report == expectedReport)
+        let expectedDailyReport = WeatherReport(
+            celsiusTemperature: Int(temperature.rounded()),
+            feelsLikeTemperature: nil,
+            condition: .clear,
+            temperatureRanges: .init(minimumCelsiusTemperature: 0, maximumCelsiusTemperature: 0),
+            conditionName: "Clear"
+        )
+
+        #expect(result.hourly[0].report == expectedHourlyReport)
+        #expect(result.daily[0].report == expectedDailyReport)
     }
 
     @Test("DailyAccumulator picks worst condition based on priority")
@@ -64,7 +72,7 @@ struct ForecastAggregatorTests {
             celsiusTemperature: expectedTemp,
             feelsLikeTemperature: nil,
             condition: .thunderstorm,
-            temperatureRanges: nil,
+            temperatureRanges: .init(minimumCelsiusTemperature: 0, maximumCelsiusTemperature: 0),
             conditionName: "Storms"
         )
 
@@ -134,11 +142,22 @@ struct ForecastAggregatorTests {
     private func createWeatherCondition(conditionID: Int?) -> [APIWeatherCondition] {
         guard let conditionID else { return [] }
 
+        let title: String
+        if conditionID == 801 {
+            title = "Clouds"
+        } else if conditionID == 200 {
+            title = "Storms"
+        } else if conditionID == 800 {
+            title = "Clear"
+        } else {
+            return []
+        }
+
         return [
             APIWeatherCondition(
                 id: conditionID,
                 main: "",
-                description: "",
+                description: title,
                 icon: ""
             )
         ]
